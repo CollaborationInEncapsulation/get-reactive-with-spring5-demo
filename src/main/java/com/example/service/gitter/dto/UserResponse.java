@@ -1,8 +1,13 @@
-package com.example.service.gitter;
+package com.example.service.gitter.dto;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UserResponse {
   private String id;
   private Integer v;

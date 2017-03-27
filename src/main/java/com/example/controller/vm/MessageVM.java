@@ -1,13 +1,17 @@
 package com.example.controller.vm;
 
-import lombok.NonNull;
-import lombok.Value;
-
-import javax.validation.constraints.NotNull;
 import java.util.Date;
+import javax.validation.constraints.NotNull;
 
-@Value
-public class MessageVM {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class  MessageVM {
     @NotNull
     @NonNull
     private String id;
