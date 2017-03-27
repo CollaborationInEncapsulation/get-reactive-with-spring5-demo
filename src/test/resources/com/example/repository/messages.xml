@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <Message id="53316dc47bfc1a000000000f"
+             text="Hi @suprememoocow !"
+             html="Hi <span data-link-type='mention' data-screen-name='suprememoocow' class='mention'>@suprememoocow</span> !"
+             sent="2014-03-25T11:51:32.289Z"
+             user_id="53307734c3599d1de448e192"
+             unread="false"
+             readBy="0"/>
+</dataset>
