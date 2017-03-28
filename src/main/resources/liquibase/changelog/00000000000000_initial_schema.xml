@@ -42,7 +42,7 @@
             <column name="unread" type="boolean" valueBoolean="true">
                 <constraints nullable="false"/>
             </column>
-            <column name="readBy" type="bigint" defaultValueNumeric="0"/>
+            <column name="read_by" type="bigint" defaultValueNumeric="0"/>
             <column name="urls" type="blob"/>
         </createTable>
 
