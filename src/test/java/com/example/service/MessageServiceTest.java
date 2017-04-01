@@ -1,10 +1,13 @@
 package com.example.service;
 
-import com.example.domain.Mention;
-import com.example.domain.Message;
+import com.example.controller.vm.MessageVM;
 import com.example.service.gitter.MessageResponse;
+import com.example.service.impl.DefaultMessageService;
+import com.example.utils.Assertions;
+import com.example.utils.ChatResponseFactory;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
+import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,15 +17,16 @@ import org.springframework.boot.autoconfigure.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
+@Import(DefaultMessageService.class)
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class})
 public class MessageServiceTest {
@@ -31,21 +35,28 @@ public class MessageServiceTest {
     private MessageService messageService;
 
     @MockBean
+    @Autowired
     private ChatClient<MessageResponse> chatClient;
 
     @Test
-    @ExpectedDatabase("no-mentioned-user-info.xml")
+    @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void shouldReturnAndStoreLatestMessagesFromChat() {
-//        Mockito.when(chatClient.getMessagesAfter(null))
-//                .thenReturn(Arrays.asList(
-//                MessageResponse.
-//                ));
-//        List<Message> messages = messageService.latest();
-//
-//        Assert.assertEquals(messages.size(), 1);
-//        messages.stream()
-//                .flatMap(m -> m.getMentions().stream())
-//                .map(Mention::getUser)
-//                .forEach(Assert::assertNull);
+        Mockito.when(chatClient.getMessagesAfter(null)).thenReturn(ChatResponseFactory.messages(10));
+        List<MessageVM> messages = messageService.latest();
+
+        Assert.assertEquals(messages.size(), 10);
+        Assertions.assertMessages(messages);
     }
+
+    @Test
+    @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
+    public void shouldReturnAndStoreMessagesFromChatAfterGivenCursor() {
+        Mockito.when(chatClient.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
+        List<MessageVM> messages = messageService.cursor("qwerty");
+
+        Mockito.verify(chatClient).getMessagesAfter("qwerty");
+        Assert.assertEquals(messages.size(), 10);
+        Assertions.assertMessages(messages);
+    }
+
 }

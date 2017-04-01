@@ -1,3 +1,7 @@
 spring:
   thymeleaf:
     cache: false
+  jpa:
+    properties:
+      format_sql: true
+      show_sql: true

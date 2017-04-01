@@ -10,7 +10,7 @@
 
     <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle"/>
 
-    <changeSet id="00000000000000" author="jhipster" dbms="postgresql,oracle">
+    <changeSet id="00000000000000" author="oledok" dbms="postgresql,oracle">
         <createSequence sequenceName="hibernate_sequence" startValue="1000" incrementBy="1"/>
     </changeSet>
 
@@ -48,11 +48,10 @@
 
         <createTable tableName="issue">
             <column name="id" type="bigint">
-                <constraints primaryKey="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
             <column name="message_id" type="varchar(100)">
-                <constraints referencedTableName="message" foreignKeyName="message_issues" referencedColumnNames="id"
-                             nullable="false"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
 
@@ -64,6 +63,18 @@
                 <constraints unique="true" nullable="false"/>
             </column>
         </createTable>
+
+        <addPrimaryKey columnNames="message_id, id"
+                       constraintName="pk_issue"
+                       tableName="issue"/>
+
+        <addForeignKeyConstraint baseTableName="issue"
+                                 baseColumnNames="message_id"
+                                 constraintName="message_with_issue"
+                                 referencedTableName="message"
+                                 referencedColumnNames="id"
+                                 onUpdate="CASCADE"
+                                 deleteCascade="true"/>
 
         <addPrimaryKey columnNames="message_id, user_id"
                        constraintName="pk_mention"

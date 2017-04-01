@@ -16,15 +16,11 @@ import static com.example.service.impl.utils.MessageMapper.toViewModelUnits;
 @Service
 public class DefaultMessageService implements MessageService {
     private final MessageRepository messageRepository;
-    private final DefaultStatisticService usersStatisticService;
     private final ChatClient<MessageResponse> chatClient;
 
     @Autowired
-    public DefaultMessageService(MessageRepository messageRepository,
-                                 DefaultStatisticService usersStatisticService, ChatClient<MessageResponse>
-                                             chatClient) {
+    public DefaultMessageService(MessageRepository messageRepository, ChatClient<MessageResponse> chatClient) {
         this.messageRepository = messageRepository;
-        this.usersStatisticService = usersStatisticService;
         this.chatClient = chatClient;
     }
 
