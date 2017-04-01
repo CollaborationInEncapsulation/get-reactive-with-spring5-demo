@@ -46,6 +46,20 @@ public class MessageResourceIntTest {
     }
 
     @Test
+    public void shouldReturnExpectedJsonAfterGivenCursor() throws Exception {
+        Mockito.when(chatClient.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
+
+        mockMvc.perform(get("/api/v1/messages")
+                .param("cursor", "qwerty")
+                .accept(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[*].id").value(hasItems("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")));
+
+        Mockito.verify(chatClient).getMessagesAfter("qwerty");
+    }
+
+    @Test
     public void shouldRespondWithNoContent() throws Exception {
         Mockito.when(chatClient.getMessagesAfter(null)).thenReturn(null);
 
