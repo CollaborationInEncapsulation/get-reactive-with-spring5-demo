@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.thymeleaf.spring5.context.webflux.IReactiveDataDriverContextVariable;
+import org.thymeleaf.spring5.context.webflux.ReactiveDataDriverContextVariable;
 
 import java.util.List;
 
@@ -27,15 +29,11 @@ public class ChatController {
 
     @GetMapping
     public String index(Model model) {
-        List<MessageVM> messages = messageService.latest();
-        UsersStatisticVM statistic = statisticService.getUsersStatistic();
+        final IReactiveDataDriverContextVariable messages =
+                new ReactiveDataDriverContextVariable(messageService.stream(), 1);
 
         model.addAttribute("messages", messages);
-        model.addAttribute("statistic", statistic);
-
-        if (messages != null && messages.size() > 0) {
-            model.addAttribute("cursor", messages.get(messages.size() - 1).getId());
-        }
+//        model.addAttribute("statistic", statistic);
 
         return "chat";
     }
