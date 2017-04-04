@@ -10,6 +10,8 @@ import org.assertj.core.util.Maps;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import static org.mockito.Mockito.anyMap;
 import static org.mockito.Mockito.anyString;
@@ -30,15 +32,14 @@ public class GitterClientTest {
     @Test
     public void shouldReturnMessagesFromGitter() {
         when(gitterApi.getRoomMessages(anyString(), anyMap())).thenReturn(response(ChatResponseFactory.messages(10)));
-        Iterable<MessageResponse> response = gitterClient.getMessagesAfter(null);
 
-        Assertions.assertMessages(response);
+        Assertions.assertMessages(gitterClient.getMessagesAfter(null));
     }
 
     @Test
     public void shouldReturnMessagesFromGitterAfterGivenCursor() {
         when(gitterApi.getRoomMessages(anyString(), anyMap())).thenReturn(response(ChatResponseFactory.messages(1)));
-        Iterable<MessageResponse> response = gitterClient.getMessagesAfter("qwerty");
+        Flux<MessageResponse> response = gitterClient.getMessagesAfter("qwerty");
 
         Mockito.verify(gitterApi).getRoomMessages(anyString(), eq(Maps.newHashMap("afterId", "qwerty")));
         Assertions.assertMessages(response);

@@ -11,3 +11,6 @@ spring:
     parser:
   profiles:
     active: live
+
+spring.thymeleaf.mode: HTML
+spring.thymeleaf.check-template: false

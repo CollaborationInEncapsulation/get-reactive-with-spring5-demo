@@ -1,48 +1,67 @@
 package com.example.service.impl;
 
+import com.amatkivskiy.gitter.sdk.rx.client.RxGitterStreamingApiClient;
 import com.example.service.ChatClient;
-import com.example.service.gitter.GitterApi;
+import com.example.service.gitter.Issue;
+import com.example.service.gitter.Mention;
 import com.example.service.gitter.MessageResponse;
+import com.example.service.gitter.Role;
+import com.example.service.gitter.Url;
+import com.example.service.gitter.UserResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import reactor.core.publisher.ConnectableFlux;
+import reactor.core.publisher.Flux;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.Collections;
+import java.util.Date;
+import java.util.stream.Collectors;
 
 @Service
 public class GitterClient implements ChatClient<MessageResponse> {
 
-    private final GitterApi gitterApi;
+    private ConnectableFlux<MessageResponse> livePublisher;
+    private final RxGitterStreamingApiClient gitterApi;
 
     @Autowired
-    public GitterClient(GitterApi gitterApi) {
+    public GitterClient(RxGitterStreamingApiClient gitterApi) {
+//        livePublisher = Flux.<MessageResponse>create(s -> gitterApi.getRoomMessagesStream("54f9e9a215522ed4b3dce824")
+        livePublisher = Flux.<MessageResponse>create(s -> gitterApi.getRoomMessagesStream("55e55b9f0fc9f982beaf4213")
+                .doOnNext(m -> s.next(new ObjectMapper().convertValue(m, MessageResponse.class)))
+                .doOnCompleted(s::complete)
+                .doOnError(s::error)
+                .doOnTerminate(s::complete)
+                .subscribe())
+                .publish(10);
         this.gitterApi = gitterApi;
     }
 
     @Override
-    @SneakyThrows
-    public Iterable<MessageResponse> getMessagesAfter(String messageId) {
-        Map<String, String> query = new HashMap<>();
-
-        Optional.ofNullable(messageId).ifPresent(v -> query.put("afterId", v));
-
-        Response<List<MessageResponse>> response = gitterApi.getRoomMessages("54f9e9a215522ed4b3dce824", query)
-                .execute();
-
-        if (response.isSuccessful()) {
-            return response.body();
-        } else {
-            //TODO replace with Custom Exception
-            throw new RuntimeException(response.errorBody().string());
-        }
+    public Flux<MessageResponse> stream() {
+        return Flux.create(s -> gitterApi.getRoomMessagesStream("55e55b9f0fc9f982beaf4213")
+                .doOnNext(m -> s.next(new MessageResponse(
+                        m.id,
+                        m.text,
+                        m.html,
+                        new Date(),
+                        m.editedAt,
+                        new UserResponse(m.fromUser.id, 1, m.fromUser.username, m.fromUser.displayName, m.fromUser
+                                .avatarUrl,
+                                m.fromUser.avatarUrlSmall, m.fromUser.avatarUrlMedium, Role.STANDARD, m.fromUser
+                                .staff, m.fromUser.gv, m.fromUser.url),
+                        m.unRead,
+                        (long) m.readBy,
+                        m.urls.stream().map(u -> new Url(u.url)).collect(Collectors.toList()),
+                        m.mentions.stream().map(ms -> new Mention(ms.screenName, ms.userId, Collections.emptyList()))
+                                .collect(Collectors.toList()),
+                        m.issues.stream().map(i -> new Issue(i.number)).collect(Collectors.toList()),
+                        Collections.emptyList(),
+                        1
+                )))
+                .doOnCompleted(s::complete)
+                .doOnError(s::error)
+                .doOnTerminate(s::complete)
+                .subscribe());
     }
 }

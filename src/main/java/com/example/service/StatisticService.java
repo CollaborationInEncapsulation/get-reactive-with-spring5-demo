@@ -1,7 +1,8 @@
 package com.example.service;
 
 import com.example.controller.vm.UsersStatisticVM;
+import reactor.core.publisher.Mono;
 
 public interface StatisticService {
-    UsersStatisticVM getUsersStatistic();
+    Mono<UsersStatisticVM> getUsersStatistic();
 }

@@ -7,34 +7,24 @@ import com.example.service.MessageService;
 import com.example.service.gitter.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 import static com.example.service.impl.utils.MessageMapper.toDomainUnits;
 import static com.example.service.impl.utils.MessageMapper.toViewModelUnits;
 
 @Service
 public class DefaultMessageService implements MessageService {
-    private final MessageRepository messageRepository;
     private final ChatClient<MessageResponse> chatClient;
 
     @Autowired
     public DefaultMessageService(MessageRepository messageRepository, ChatClient<MessageResponse> chatClient) {
-        this.messageRepository = messageRepository;
         this.chatClient = chatClient;
+
+//        messageRepository.save(toDomainUnits(chatClient.stream()));
     }
 
     @Override
-    public List<MessageVM> cursor(String cursor) {
-        Iterable<MessageResponse> messages = chatClient.getMessagesAfter(cursor);
-
-        messageRepository.save(toDomainUnits(messages));
-
-        return toViewModelUnits(messages);
-    }
-
-    @Override
-    public List<MessageVM> latest() {
-        return cursor(null);
+    public Flux<MessageVM> stream() {
+        return toViewModelUnits(chatClient.stream());
     }
 }
