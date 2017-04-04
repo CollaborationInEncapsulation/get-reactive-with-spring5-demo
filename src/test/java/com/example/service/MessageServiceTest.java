@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class MessageServiceTest {
     @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void shouldReturnAndStoreMessagesFromChatAfterGivenCursor() {
         Mockito.when(chatClient.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
-        StepVerifier.create(messageService.cursor("qwerty"));
+        List<MessageVM> messages = messageService.cursor("qwerty");
 
         Mockito.verify(chatClient).getMessagesAfter("qwerty");
         Assert.assertEquals(messages.size(), 10);

@@ -18,7 +18,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.jdbc.JdbcTestUtils;
-import reactor.test.StepVerifier;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -40,18 +39,20 @@ public class UserRepositoryTest {
     @Test
     @DatabaseSetup(value = "user-activity.xml")
     public void shouldFindExpectedMostActiveUser() {
-        StepVerifier.create(userRepository.findAllOrderedByActivityDesc(PageRequest.of(0, 1)))
-                .expectNextCount(1)
-                .expectNext(User.of("53316dc47bfc1a000000000f", "oledok"))
-                .expectComplete();
+        Page<User> mostActiveUsers = userRepository.findAllOrderedByActivityDesc(new PageRequest(0, 1));
+
+        Assert.assertEquals(mostActiveUsers.getNumberOfElements(), 1);
+        Assert.assertEquals(User.of("53316dc47bfc1a000000000f", "oledok"),
+                mostActiveUsers.getContent().stream().findFirst().orElse(null));
     }
 
     @Test
     @DatabaseSetup("user-popularity.xml")
     public void shouldFindExpectedMostPopularUser() {
-        StepVerifier.create(userRepository.findAllOrderedByMentionDesc(PageRequest.of(0, 1)))
-                .expectNextCount(1)
-                .expectNext(User.of("53316dc47bfc1a000000000f", "oledok"))
-                .expectComplete();
+        Page<User> mostActiveUsers = userRepository.findAllOrderedByMentionDesc(new PageRequest(0, 1));
+
+        Assert.assertEquals(mostActiveUsers.getNumberOfElements(), 1);
+        Assert.assertEquals(User.of("53316dc47bfc1a000000000f", "oledok"),
+                mostActiveUsers.getContent().stream().findFirst().orElse(null));
     }
 }

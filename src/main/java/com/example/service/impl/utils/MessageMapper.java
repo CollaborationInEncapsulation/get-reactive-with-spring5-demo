@@ -7,29 +7,42 @@ import com.example.domain.Message;
 import com.example.domain.User;
 import com.example.service.gitter.MessageResponse;
 import com.example.service.gitter.Url;
-import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class MessageMapper {
     private MessageMapper() {
     }
 
-    public static Flux<MessageVM> toViewModelUnits(Flux<MessageResponse> messages) {
+    public static List<MessageVM> toViewModelUnits(Iterable<MessageResponse> messages) {
         if (messages == null) {
             return null;
         }
 
-        return messages.map(MessageMapper::toViewModelUnit);
+        List<MessageVM> vms = new ArrayList<>();
+
+        for (MessageResponse message : messages) {
+            vms.add(toViewModelUnit(message));
+        }
+
+        return vms;
 
     }
 
-    public static Flux<Message> toDomainUnits(Flux<MessageResponse> messages) {
+    public static List<Message> toDomainUnits(Iterable<MessageResponse> messages) {
         if (messages == null) {
             return null;
         }
 
-        return messages.map(MessageMapper::toDomainUnit);
+        List<Message> persistable = new ArrayList<>();
+
+        for (MessageResponse message : messages) {
+            persistable.add(toDomainUnit(message));
+        }
+
+        return persistable;
     }
 
     private static Message toDomainUnit(MessageResponse message) {
