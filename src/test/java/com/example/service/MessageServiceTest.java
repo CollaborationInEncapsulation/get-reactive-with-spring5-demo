@@ -21,6 +21,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
@@ -36,25 +38,28 @@ public class MessageServiceTest {
 
     @MockBean
     @Autowired
-    private ChatService<MessageResponse> chatClient;
+    private ChatService<MessageResponse> chatService;
 
     @Test
     @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void shouldReturnAndStoreLatestMessagesFromChat() {
-        Mockito.when(chatClient.getMessagesAfter(null)).thenReturn(ChatResponseFactory.messages(10));
-        List<MessageVM> messages = messageService.latest();
+        Mockito.when(chatService.stream()).thenReturn(Flux.fromIterable(ChatResponseFactory.messages(10)));
+        Flux<MessageVM> messages = messageService.latest();
 
-        Assert.assertEquals(messages.size(), 10);
-        Assertions.assertMessages(messages);
+        StepVerifier.create(messages)
+                .expectSubscription()
+                .expectNextCount(10)
+                .consumeRecordedWith(Assertions::assertMessages)
+                .expectComplete();
     }
 
     @Test
     @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void shouldReturnAndStoreMessagesFromChatAfterGivenCursor() {
-        Mockito.when(chatClient.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
+        Mockito.when(chatService.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
         List<MessageVM> messages = messageService.cursor("qwerty");
 
-        Mockito.verify(chatClient).getMessagesAfter("qwerty");
+        Mockito.verify(chatService).getMessagesAfter("qwerty");
         Assert.assertEquals(messages.size(), 10);
         Assertions.assertMessages(messages);
     }
