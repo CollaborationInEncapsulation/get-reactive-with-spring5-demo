@@ -1,0 +1,37 @@
+{
+  "groups": [
+    {
+      "name": "gitter.api",
+      "type": "com.example.service.gitter.GitterProperties",
+      "sourceType": "com.example.service.gitter.GitterProperties",
+      "description": "Gitter Api Configurations Properties."
+    }
+  ],
+  "properties": [
+    {
+      "name": "gitter.api.endpoint",
+      "type": "java.net.URI",
+      "sourceType": "com.example.service.gitter.GitterProperties",
+      "description": "Endpoint URI for interact with rooms, users and messages."
+    },
+    {
+      "name": "gitter.api.messages-resource",
+      "type": "java.net.URI",
+      "sourceType": "com.example.service.gitter.GitterProperties",
+      "description": "Messages resource path property. Should include room id too."
+    },
+    {
+      "name": "gitter.api.version",
+      "type": "java.lang.String",
+      "sourceType": "com.example.service.gitter.GitterProperties",
+      "description": "Gitter API version.",
+      "defaultValue": "v1"
+    },
+    {
+      "name": "gitter.api.auth.token",
+      "type": "java.lang.String",
+      "sourceType": "com.example.service.gitter.GitterProperties",
+      "description": "Gitter API Authentication token."
+    }
+  ]
+}

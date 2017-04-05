@@ -3,17 +3,14 @@ package com.example.controller;
 import com.example.controller.vm.MessageVM;
 import com.example.controller.vm.UserVM;
 import com.example.controller.vm.UsersStatisticVM;
-import com.example.service.ChatClient;
-import com.example.service.gitter.MessageResponse;
+import com.example.service.ChatService;
+import com.example.service.gitter.dto.MessageResponse;
 import com.example.utils.Assertions;
 import com.example.utils.ChatResponseFactory;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.DatabaseSetup;
-import org.dbunit.Assertion;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -51,7 +48,7 @@ public class ChatControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @MockBean
-    private ChatClient<MessageResponse> chatClient;
+    private ChatService<MessageResponse> chatClient;
 
     @Test
     @DatabaseSetup("user-statistic.xml")

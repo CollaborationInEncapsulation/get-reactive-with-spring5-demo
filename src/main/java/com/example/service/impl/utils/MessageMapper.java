@@ -5,8 +5,8 @@ import com.example.domain.Issue;
 import com.example.domain.Mention;
 import com.example.domain.Message;
 import com.example.domain.User;
-import com.example.service.gitter.MessageResponse;
-import com.example.service.gitter.Url;
+import com.example.service.gitter.dto.MessageResponse;
+import com.example.service.gitter.dto.Url;
 
 import java.util.ArrayList;
 import java.util.List;

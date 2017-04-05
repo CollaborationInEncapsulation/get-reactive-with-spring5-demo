@@ -1,7 +1,7 @@
 package com.example.service;
 
 import com.example.controller.vm.MessageVM;
-import com.example.service.gitter.MessageResponse;
+import com.example.service.gitter.dto.MessageResponse;
 import com.example.service.impl.DefaultMessageService;
 import com.example.utils.Assertions;
 import com.example.utils.ChatResponseFactory;
@@ -36,7 +36,7 @@ public class MessageServiceTest {
 
     @MockBean
     @Autowired
-    private ChatClient<MessageResponse> chatClient;
+    private ChatService<MessageResponse> chatClient;
 
     @Test
     @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)

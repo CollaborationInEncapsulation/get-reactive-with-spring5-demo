@@ -1,7 +1,7 @@
 package com.example.controller;
 
-import com.example.service.ChatClient;
-import com.example.service.gitter.MessageResponse;
+import com.example.service.ChatService;
+import com.example.service.gitter.dto.MessageResponse;
 import com.example.utils.ChatResponseFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +31,7 @@ public class MessageResourceIntTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private ChatClient<MessageResponse> chatClient;
+    private ChatService<MessageResponse> chatClient;
 
 
     @Test

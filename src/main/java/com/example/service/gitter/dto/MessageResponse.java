@@ -1,7 +1,6 @@
-package com.example.service.gitter;
+package com.example.service.gitter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 

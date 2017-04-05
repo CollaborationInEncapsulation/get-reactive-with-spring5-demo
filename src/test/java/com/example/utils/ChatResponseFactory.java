@@ -1,13 +1,13 @@
 package com.example.utils;
 
 
-import com.example.service.gitter.Issue;
-import com.example.service.gitter.Mention;
-import com.example.service.gitter.MessageResponse;
-import com.example.service.gitter.Meta;
-import com.example.service.gitter.Role;
-import com.example.service.gitter.Url;
-import com.example.service.gitter.UserResponse;
+import com.example.service.gitter.dto.Issue;
+import com.example.service.gitter.dto.Mention;
+import com.example.service.gitter.dto.MessageResponse;
+import com.example.service.gitter.dto.Meta;
+import com.example.service.gitter.dto.Role;
+import com.example.service.gitter.dto.Url;
+import com.example.service.gitter.dto.UserResponse;
 
 import java.time.Instant;
 import java.util.Arrays;
