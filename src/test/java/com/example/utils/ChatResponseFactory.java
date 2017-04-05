@@ -1,13 +1,7 @@
 package com.example.utils;
 
 
-import com.example.service.gitter.dto.Issue;
-import com.example.service.gitter.dto.Mention;
-import com.example.service.gitter.dto.MessageResponse;
-import com.example.service.gitter.dto.Meta;
-import com.example.service.gitter.dto.Role;
-import com.example.service.gitter.dto.Url;
-import com.example.service.gitter.dto.UserResponse;
+import com.example.service.gitter.dto.*;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -41,7 +35,7 @@ public final class ChatResponseFactory {
                 Arrays.asList(new Url(id), new Url(id), new Url(id)),
                 Collections.singletonList(mention(id)),
                 Collections.singletonList(issue(id)),
-                Collections.singletonList(new Meta()),
+                Collections.emptyList(),
                 1
         );
     }
