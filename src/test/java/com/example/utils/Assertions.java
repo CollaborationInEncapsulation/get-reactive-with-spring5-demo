@@ -1,8 +1,7 @@
 package com.example.utils;
 
 import com.example.controller.vm.MessageVM;
-import com.example.service.gitter.MessageResponse;
-import com.example.utils.ChatResponseFactory;
+import com.example.service.gitter.dto.MessageResponse;
 import org.junit.Assert;
 
 import java.util.Iterator;

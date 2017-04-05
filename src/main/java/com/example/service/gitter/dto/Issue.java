@@ -1,4 +1,4 @@
-package com.example.service.gitter;
+package com.example.service.gitter.dto;
 
 import lombok.Value;
 
