@@ -1,25 +1,16 @@
 package com.example.repository;
 
 import com.example.domain.User;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.repository.NoRepositoryBean;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
 
-@Repository
-public interface UserRepository extends JpaRepository<User, String> {
-    @Query("SELECT user " +
-            "FROM Message messages " +
-            "INNER JOIN messages.user user " +
-            "GROUP BY user " +
-            "ORDER BY COUNT(messages) DESC")
-    Page<User> findAllOrderedByActivityDesc(Pageable pageable);
+@NoRepositoryBean
+public interface UserRepository extends ReactiveCrudRepository<User, String> {
 
-    @Query("SELECT user " +
-            "FROM Mention mentions " +
-            "INNER JOIN mentions.user user " +
-            "GROUP BY user " +
-            "ORDER BY COUNT(mentions) DESC")
-    Page<User> findAllOrderedByMentionDesc(Pageable pageable);
+    Flux<User> findAllOrderedByActivityDesc(Pageable pageable);
+
+    Flux<User> findAllOrderedByMentionDesc(Pageable pageable);
 }

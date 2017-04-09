@@ -1,77 +1,58 @@
 package com.example.service.gitter;
 
+import com.example.harness.ChatResponseFactory;
+import com.example.harness.GitterMockServerRule;
 import com.example.service.gitter.dto.MessageResponse;
-import com.example.utils.Assertions;
-import com.example.utils.ChatResponseFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.client.RestClientTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.WebUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.util.List;
-
-import static org.hamcrest.Matchers.startsWith;
-import static org.springframework.test.web.client.ExpectedCount.once;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import java.time.Duration;
 
 @RunWith(SpringRunner.class)
-@RestClientTest(GitterConfiguration.class)
+@JdbcTest
+@Import({
+        GitterConfiguration.class,
+        JacksonAutoConfiguration.class
+})
 public class GitterClientTest {
 
     @Autowired
+    @Qualifier("ReactorGitterClient")
     private GitterClient gitterClient;
-    @Autowired
-    private MockRestServiceServer server;
-    @Autowired
-    private ObjectMapper objectMapper;
+
     @Autowired
     private GitterProperties properties;
 
-    @Test
-    public void shouldExpectRequestWithNoQueryAndResponseWithLatestMessages() throws JsonProcessingException {
-        server.expect(once(), requestTo(
-                UriComponentsBuilder.fromUri(properties.getEndpoint())
-                        .pathSegment(properties.getVersion(), properties.getMessagesResource().toASCIIString())
-                        .build()
-                        .toUriString()))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(objectMapper.writeValueAsBytes(ChatResponseFactory.messages(5)),
-                        MediaType.APPLICATION_JSON));
-
-        List<MessageResponse> messages = gitterClient.getMessages(null);
-
-        server.verify();
-        Assert.assertEquals(5, messages.size());
-        Assertions.assertMessages(messages);
-    }
+    @Rule
+    public GitterMockServerRule gitterMockServerRule = new GitterMockServerRule(
+            () -> properties,
+            Flux
+                    .interval(Duration.ofMillis(100))
+                    .map(String::valueOf)
+                    .map(i -> Mono.just(ChatResponseFactory.message(i)))
+    );
 
 
     @Test
-    public void shouldExpectRequestWithAfterIdQueryAndResponseWithOneMessage() throws JsonProcessingException {
-        server.expect(once(), requestTo(startsWith(
-                UriComponentsBuilder.fromUri(properties.getEndpoint())
-                        .pathSegment(properties.getVersion(), properties.getMessagesResource().toASCIIString())
-                        .build()
-                        .toUriString())))
-                .andExpect(method(HttpMethod.GET))
-                .andExpect(queryParam("afterId", "qwerty"))
-                .andRespond(withSuccess(objectMapper.writeValueAsBytes(ChatResponseFactory.messages(1)),
-                        MediaType.APPLICATION_JSON));
+    public void shouldExpectRequestWithNoQueryAndResponseWithLatestMessages() {
+        Flux<MessageResponse> messages = Flux.from(gitterClient.getMessages(null));
 
-        List<MessageResponse> messages = gitterClient.getMessages(WebUtils.parseMatrixVariables("afterId=qwerty"));
-
-        server.verify();
-        Assert.assertEquals(1, messages.size());
-        Assertions.assertMessages(messages);
+        StepVerifier.create(messages)
+                .expectSubscription()
+                .expectNextCount(1)
+                .thenAwait(Duration.ofMillis(100))
+                .expectNextCount(1)
+                .thenCancel()
+                .verify();
     }
 }

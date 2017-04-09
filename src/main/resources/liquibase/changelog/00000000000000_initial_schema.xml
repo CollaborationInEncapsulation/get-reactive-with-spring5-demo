@@ -28,10 +28,10 @@
             <column name="id" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="text" type="blob">
+            <column name="TEXT" type="clob" encoding="utf-8">
                 <constraints nullable="false"/>
             </column>
-            <column name="html" type="blob"/>
+            <column name="HTML" type="clob" encoding="utf-8"/>
             <column name="sent" type="timestamp" defaultValueDate="${now}">
                 <constraints nullable="false"/>
             </column>
@@ -43,7 +43,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="read_by" type="bigint" defaultValueNumeric="0"/>
-            <column name="urls" type="blob"/>
+            <column name="urls" type="clob"/>
         </createTable>
 
         <createTable tableName="issue">
@@ -60,7 +60,7 @@
                 <constraints nullable="false"/>
             </column>
             <column name="user_id" type="varchar(100)">
-                <constraints unique="true" nullable="false"/>
+                <constraints nullable="false"/>
             </column>
         </createTable>
 

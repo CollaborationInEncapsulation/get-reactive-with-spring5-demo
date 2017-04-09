@@ -1,14 +1,17 @@
 package com.example.service;
 
 import com.example.controller.vm.MessageVM;
+import com.example.harness.ChatResponseFactory;
+import com.example.repository.MessageRepository;
+import com.example.repository.impl.DefaultMessageRepository;
 import com.example.service.gitter.dto.MessageResponse;
 import com.example.service.impl.DefaultMessageService;
-import com.example.utils.Assertions;
-import com.example.utils.ChatResponseFactory;
+import com.example.service.impl.MessageBroker;
+import com.example.service.impl.utils.MessageMapper;
 import com.github.springtestdbunit.DbUnitTestExecutionListener;
 import com.github.springtestdbunit.annotation.ExpectedDatabase;
 import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -24,44 +27,46 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-
 @RunWith(SpringRunner.class)
 @DataJpaTest
-@Import(DefaultMessageService.class)
+@Import({
+        DefaultMessageRepository.class,
+        MessageBroker.class
+})
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @TestExecutionListeners({DependencyInjectionTestExecutionListener.class, DbUnitTestExecutionListener.class})
 public class MessageServiceTest {
 
-    @Autowired
+
     private MessageService messageService;
+
+    @Autowired
+    private MessageBroker messageBroker;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @MockBean
     @Autowired
     private ChatService<MessageResponse> chatService;
 
+    @Before
+    public void setUp() {
+        Mockito.when(chatService.stream()).thenReturn(Flux.fromIterable(ChatResponseFactory.messages(10)));
+        messageService = new DefaultMessageService(messageRepository, chatService, messageBroker);
+    }
+
     @Test
     @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void shouldReturnAndStoreLatestMessagesFromChat() {
-        Mockito.when(chatService.stream()).thenReturn(Flux.fromIterable(ChatResponseFactory.messages(10)));
         Flux<MessageVM> messages = messageService.latest();
 
         StepVerifier.create(messages)
                 .expectSubscription()
-                .expectNextCount(10)
-                .consumeRecordedWith(Assertions::assertMessages)
-                .expectComplete();
+                .expectNextSequence(MessageMapper.toViewModelUnits(Flux.fromIterable(ChatResponseFactory.messages(10))).collectList().block())
+                .expectComplete()
+                .verify();
+
+        messageBroker.channel("statisticChanged").ifPresent(Flux::blockFirst);
     }
-
-    @Test
-    @ExpectedDatabase(value = "chat-messages-expectation.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
-    public void shouldReturnAndStoreMessagesFromChatAfterGivenCursor() {
-        Mockito.when(chatService.getMessagesAfter(Mockito.anyString())).thenReturn(ChatResponseFactory.messages(10));
-        List<MessageVM> messages = messageService.cursor("qwerty");
-
-        Mockito.verify(chatService).getMessagesAfter("qwerty");
-        Assert.assertEquals(messages.size(), 10);
-        Assertions.assertMessages(messages);
-    }
-
 }

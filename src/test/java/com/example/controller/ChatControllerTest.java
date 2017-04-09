@@ -1,80 +1,65 @@
 package com.example.controller;
 
-import com.example.controller.vm.MessageVM;
-import com.example.controller.vm.UserVM;
-import com.example.controller.vm.UsersStatisticVM;
-import com.example.service.ChatService;
-import com.example.service.gitter.dto.MessageResponse;
-import com.example.utils.Assertions;
-import com.example.utils.ChatResponseFactory;
-import com.github.springtestdbunit.DbUnitTestExecutionListener;
-import com.github.springtestdbunit.annotation.DatabaseSetup;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
+import com.example.harness.ChatResponseFactory;
+import com.example.harness.GitterMockServerRule;
+import com.example.service.gitter.GitterProperties;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.EmbeddedDatabaseConnection;
-import org.springframework.boot.test.autoconfigure.SpringBootDependencyInjectionTestExecutionListener;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockitoTestExecutionListener;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.util.List;
+import java.time.Duration;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-
-@SpringBootTest
 @RunWith(SpringRunner.class)
-@AutoConfigureMockMvc
+@SpringBootTest
+@AutoConfigureWebTestClient
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
-@TestExecutionListeners({
-        MockitoTestExecutionListener.class,
-        SpringBootDependencyInjectionTestExecutionListener.class,
-        DbUnitTestExecutionListener.class
-})
+@DirtiesContext
 public class ChatControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
-    @MockBean
-    private ChatService<MessageResponse> chatClient;
+    private WebTestClient testClient;
+
+    @Autowired
+    private GitterProperties properties;
+
+    @Rule
+    public GitterMockServerRule gitterMockServerRule = new GitterMockServerRule(
+            () -> properties,
+            Flux
+                    .interval(Duration.ofMillis(100))
+                    .map(String::valueOf)
+                    .map(i -> Mono.just(ChatResponseFactory.message(i)))
+    );
 
     @Test
-    @DatabaseSetup("user-statistic.xml")
     public void shouldRespondOnRootUrlWithCorrectModel() throws Exception {
-        Mockito.when(chatClient.getMessagesAfter(null)).thenReturn(ChatResponseFactory.messages(10));
+        StepVerifier.create(
+                testClient
+                        .get()
+                        .uri("/")
+                        .exchange()
+                        .expectStatus().isOk()
+                        .expectHeader().valueMatches("Content-Type", MediaType.TEXT_HTML_VALUE + ";charset=UTF-8")
+                .expectBody(String.class)
+                .returnResult()
+                .getResponseBody())
+                .expectSubscription()
+                .expectNextCount(1)
+                .expectComplete()
+                .verify();
 
-        mockMvc.perform(get("")
-                .accept(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(model().attribute("messages", new BaseMatcher<List<MessageVM>>() {
-                    @Override
-                    public void describeTo(Description description) {
-
-                    }
-
-                    @Override
-                    public boolean matches(Object item) {
-                        Assertions.assertMessages((List<MessageVM>) item);
-                        return true;
-                    }
-                }))
-                .andExpect(model().attribute("statistic",
-                        new UsersStatisticVM(new UserVM("53307734c3599d1de448e192", "suprememoocow"),
-                                new UserVM("53316dc47bfc1a000000000f", "oledok"))))
-                .andExpect(view().name("chat"));
     }
 
 }

@@ -1,0 +1,17 @@
+<li xmlns:th="http://www.thymeleaf.org" th:each="message : ${messages}" class="media">
+    <div class="media-body">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img class="media-object img-circle "
+                     th:src="${message.getUserAvatarUrl()}"/>
+            </a>
+            <div class="media-body" th:inline="none">
+                <span th:utext="${message.getHtml()}" th:remove="tag">title</span>
+                <br/>
+                <small class="text-muted"
+                       th:text="${message.getUsername() + ' | ' + message.getSent()}"></small>
+                <hr/>
+            </div>
+        </div>
+    </div>
+</li>

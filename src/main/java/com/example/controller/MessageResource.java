@@ -4,15 +4,14 @@ import com.example.controller.vm.MessageVM;
 import com.example.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api/v1/messages")
@@ -24,23 +23,9 @@ public class MessageResource {
         this.messageService = messageService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<MessageVM>> list(@RequestParam(value = "cursor", required = false) String cursor) {
-        List<MessageVM> messages = messageService.cursor(cursor);
-
-        if (messages != null && messages.size() > 0) {
-            return ResponseEntity.ok()
-                    .header("cursor", messages.get(messages.size() - 1).getId())
-                    .body(messages);
-        } else {
-            ResponseEntity.HeadersBuilder<?> headersBuilder = ResponseEntity.noContent();
-
-            if (cursor != null) {
-                headersBuilder.header("cursor", cursor);
-            }
-
-            return headersBuilder.build();
-        }
+    @GetMapping(produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<MessageVM> stream() {
+        return messageService.latest();
     }
 
     @ResponseStatus

@@ -8,35 +8,44 @@ import com.example.service.impl.utils.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Signal;
 
 @Service
 public class DefaultStatisticService implements StatisticService {
+    public static final UserVM EMPTY_USER = new UserVM("", "");
     private final UserRepository userRepository;
+    private final MessageBroker messageBroker;
 
     @Autowired
-    public DefaultStatisticService(UserRepository userRepository) {
+    public DefaultStatisticService(UserRepository userRepository, MessageBroker messageBroker) {
         this.userRepository = userRepository;
+        this.messageBroker = messageBroker;
     }
 
     @Override
-    @Transactional
-    public UsersStatisticVM getUsersStatistic() {
-        UserVM topActiveUser = userRepository.findAllOrderedByActivityDesc(new PageRequest(0, 1))
-                .map(UserMapper::toViewModelUnits)
-                .getContent()
-                .stream()
-                .findFirst()
-                .orElse(null);
+    public Flux<UsersStatisticVM> usersStatisticStream() {
+        return Flux.merge(
+                doGetUserStatistic(),
+                messageBroker.channel("statisticChanged").orElse(Flux.empty())
+                        .filter(Signal::isOnNext)
+                        .map(Signal::get)
+                        .flatMap(s -> doGetUserStatistic())
+        );
+    }
 
-        UserVM topMentionedUser = userRepository.findAllOrderedByMentionDesc(new PageRequest(0, 1))
-                .map(UserMapper::toViewModelUnits)
-                .getContent()
-                .stream()
-                .findFirst()
-                .orElse(null);
+    private Mono<UsersStatisticVM> doGetUserStatistic() {
+        Flux<UserVM> topActiveUser = userRepository.findAllOrderedByActivityDesc(PageRequest.of(0, 1))
+                .map(UserMapper::toViewModelUnits);
 
-        return new UsersStatisticVM(topActiveUser, topMentionedUser);
+        Flux<UserVM> topMentionedUser = userRepository.findAllOrderedByMentionDesc(PageRequest.of(0, 1))
+                .map(UserMapper::toViewModelUnits);
+
+        return Flux.zip(
+                topActiveUser.single(EMPTY_USER).otherwiseIfEmpty(Mono.just(EMPTY_USER)),
+                topMentionedUser.single(EMPTY_USER).otherwiseIfEmpty(Mono.just(EMPTY_USER)),
+                UsersStatisticVM::new
+        ).single();
     }
 }

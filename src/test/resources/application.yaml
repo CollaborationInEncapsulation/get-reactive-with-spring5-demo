@@ -1,5 +1,7 @@
 liquibase:
   change-log: classpath:liquibase/master.xml
+  contexts: dev
+  drop-first: true
 
 spring:
   datasource:
@@ -14,9 +16,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
+    database-platform: H2
 gitter:
   api:
-    endpoint: https://stream.gitter.im/
+    endpoint: http://localhost:9090/
     messages-resource: rooms/55e55b9f0fc9f982beaf4213/chatMessages
     auth:
       token: 3cd4820adf59b6a7116f99d92f68a1b786895ce7

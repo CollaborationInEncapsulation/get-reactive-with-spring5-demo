@@ -1,54 +1,83 @@
 package com.example.service.gitter;
 
 import com.example.service.gitter.dto.MessageResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.reactivex.netty.protocol.http.client.HttpClientResponse;
+import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.WebUtils;
+import reactor.core.publisher.Flux;
+import reactor.ipc.netty.ByteBufFlux;
+import reactor.ipc.netty.http.client.HttpClient;
 
-import java.util.List;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import java.io.IOException;
 
 @Configuration
 @EnableConfigurationProperties(GitterProperties.class)
 public class GitterConfiguration {
 
     @Bean
-    public GitterClient gitterClient(GitterProperties gitterProperties,
-                                     RestTemplate restTemplate) {
-        return (query) -> {
-            ResponseEntity<List<MessageResponse>> response = restTemplate.exchange(
-                    UriComponentsBuilder.fromUri(gitterProperties.getEndpoint())
-                            .pathSegment(gitterProperties.getVersion(),
-                                    gitterProperties.getMessagesResource().toASCIIString())
-                            .queryParams(query)
-                            .build()
-                            .toUri(),
-                    HttpMethod.GET,
-                    new HttpEntity<>(WebUtils.parseMatrixVariables(
-                            "Authorization=Bearer " + gitterProperties.getAuth().getToken()
-                    )),
-                    new ParameterizedTypeReference<List<MessageResponse>>() {
+    @Qualifier("ReactorGitterClient")
+    public GitterClient reactorGitterClient(GitterProperties gitterProperties,
+                                            ObjectMapper mapper) {
+        return (query) -> HttpClient.create()
+                .get(
+                        of(gitterProperties).queryParams(query).toUriString(),
+                        r -> r.header("Authorization", "Bearer " + gitterProperties.getAuth().getToken()))
+                .map(hcr -> hcr.addHandler(new JsonObjectDecoder()))
+                .retry()
+                .flatMap(hc -> hc.receive().asInputStream())
+                .map(is -> {
+                    try {
+                        return mapper.readValue(is, MessageResponse.class);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-            );
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                return response.getBody();
-            } else {
-                //TODO replace with Custom Exception
-                throw new RuntimeException(response.getBody().toString());
-            }
-        };
+                });
     }
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
-        return builder.build();
+    @Qualifier("RxJavaGitterClient")
+    @SneakyThrows
+    public GitterClient rxJavaGitterClient(GitterProperties gitterProperties,
+                                           ObjectMapper mapper) {
+        UriComponentsBuilder gitterUriBuilder = of(gitterProperties);
+        UriComponents gitterUriComponent = gitterUriBuilder.build();
+
+        SSLContext sslCtx = SSLContext.getDefault();
+        SSLEngine sslEngine = sslCtx.createSSLEngine(gitterUriComponent.getHost(), gitterUriComponent.getPort());
+        sslEngine.setUseClientMode(true);
+
+        return (query) -> ByteBufFlux.fromInbound(Flux.create(sink -> io.reactivex.netty.protocol.http.client.HttpClient
+                .newClient(gitterUriComponent.getHost(), gitterUriComponent.getPort())
+                .secure(sslEngine)
+                .createGet(gitterUriBuilder.queryParams(query).build().getPath())
+                .addHeader("Authorization", "Bearer " + gitterProperties.getAuth().getToken())
+                .retry()
+                .flatMap(HttpClientResponse::getContent)
+                .filter(bb -> bb.capacity() > 2)
+                .subscribe(sink::next, sink::error, sink::complete)))
+                .asInputStream()
+                .map(is -> {
+                    try {
+                        return mapper.readValue(is, MessageResponse.class);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+    }
+
+    private static UriComponentsBuilder of(GitterProperties gitterProperties) {
+        return UriComponentsBuilder
+                .fromUri(gitterProperties.getEndpoint())
+                .pathSegment(gitterProperties.getVersion(),
+                        gitterProperties.getMessagesResource().toASCIIString());
     }
 }

@@ -1,13 +1,20 @@
-package com.example.utils;
+package com.example.harness;
 
 
-import com.example.service.gitter.dto.*;
+import com.example.service.gitter.dto.Issue;
+import com.example.service.gitter.dto.Mention;
+import com.example.service.gitter.dto.MessageResponse;
+import com.example.service.gitter.dto.Role;
+import com.example.service.gitter.dto.Url;
+import com.example.service.gitter.dto.UserResponse;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 

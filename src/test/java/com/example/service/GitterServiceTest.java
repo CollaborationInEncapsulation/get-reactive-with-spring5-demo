@@ -1,18 +1,18 @@
 package com.example.service;
 
 
+import com.example.harness.ChatResponseFactory;
 import com.example.service.gitter.GitterClient;
-import com.example.service.gitter.dto.MessageResponse;
 import com.example.service.impl.GitterService;
-import com.example.utils.Assertions;
-import com.example.utils.ChatResponseFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.web.util.WebUtils;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.time.Duration;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
 public class GitterServiceTest {
@@ -22,23 +22,28 @@ public class GitterServiceTest {
     @Before
     public void setUp() {
         gitterClient = Mockito.mock(GitterClient.class);
+
+        when(gitterClient.getMessages(any())).thenReturn(
+                Flux
+                        .interval(Duration.ofMillis(1))
+                        .map(String::valueOf)
+                        .map(ChatResponseFactory::message)
+        );
+
         gitterService = new GitterService(gitterClient);
     }
 
     @Test
     public void shouldReturnMessagesFromGitter() {
-        when(gitterClient.getMessages(any())).thenReturn(ChatResponseFactory.messages(10));
-        Iterable<MessageResponse> response = gitterService.getMessagesAfter(null);
 
-        Assertions.assertMessages(response);
-    }
-
-    @Test
-    public void shouldReturnMessagesFromGitterAfterGivenCursor() {
-        when(gitterClient.getMessages(any())).thenReturn(ChatResponseFactory.messages(1));
-        Iterable<MessageResponse> response = gitterService.getMessagesAfter("qwerty");
-
-        Mockito.verify(gitterClient).getMessages(eq(WebUtils.parseMatrixVariables("afterId=qwerty")));
-        Assertions.assertMessages(response);
+        StepVerifier.create(gitterService.stream())
+                .expectSubscription()
+                .expectNextCount(1)
+                .thenAwait(Duration.ofMillis(1))
+                .expectNextCount(1)
+                .thenAwait(Duration.ofMillis(1))
+                .expectNextCount(1)
+                .thenCancel()
+                .verify();
     }
 }
