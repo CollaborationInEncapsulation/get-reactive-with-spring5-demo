@@ -54,6 +54,7 @@ public class Message implements Serializable {
 
     private Long readBy;
 
+    @Lob
     @Convert(converter = ToCommaSeparatedValuesConverter.class)
     private String[] urls;
 
