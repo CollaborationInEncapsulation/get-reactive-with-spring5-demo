@@ -2,6 +2,7 @@ package com.example.harness;
 
 
 import com.example.service.gitter.GitterProperties;
+import com.example.service.gitter.GitterUriBuilder;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.junit.rules.MethodRule;
@@ -14,7 +15,6 @@ import org.springframework.core.io.buffer.NettyDataBufferFactory;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.util.UriComponents;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.ipc.netty.NettyContext;
 import reactor.ipc.netty.NettyPipeline;
@@ -55,10 +55,7 @@ public class GitterMockServerRule implements MethodRule {
 
     protected NettyContext setUpServer() {
         GitterProperties gitterProperties = gitterPropertiesSupplier.get();
-        UriComponents components = UriComponentsBuilder
-                .fromUri(gitterProperties.getEndpoint())
-                .pathSegment(gitterProperties.getVersion(), gitterProperties.getMessagesResource().toASCIIString())
-                .build();
+        UriComponents components = GitterUriBuilder.from(gitterProperties).build();
 
         return HttpServer.create(components.getPort())
                 .newRouter((shr) -> shr.get(

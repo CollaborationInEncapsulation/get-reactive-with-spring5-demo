@@ -29,10 +29,11 @@ public class GitterConfiguration {
                                             ObjectMapper mapper) {
         return (query) -> HttpClient.create()
                 .get(
-                        of(gitterProperties).queryParams(query).toUriString(),
+                        GitterUriBuilder.from(gitterProperties).queryParams(query).toUriString(),
                         r -> r.header("Authorization", "Bearer " + gitterProperties.getAuth().getToken()))
                 .map(hcr -> hcr.addHandler(new JsonObjectDecoder()))
                 .retry()
+                .flux()
                 .flatMap(hc -> hc.receive().asInputStream())
                 .map(is -> {
                     try {
@@ -48,7 +49,7 @@ public class GitterConfiguration {
     @SneakyThrows
     public GitterClient rxJavaGitterClient(GitterProperties gitterProperties,
                                            ObjectMapper mapper) {
-        UriComponentsBuilder gitterUriBuilder = of(gitterProperties);
+        UriComponentsBuilder gitterUriBuilder = GitterUriBuilder.from(gitterProperties);
         UriComponents gitterUriComponent = gitterUriBuilder.build();
 
         SSLContext sslCtx = SSLContext.getDefault();
@@ -72,12 +73,5 @@ public class GitterConfiguration {
                         throw new RuntimeException(e);
                     }
                 });
-    }
-
-    private static UriComponentsBuilder of(GitterProperties gitterProperties) {
-        return UriComponentsBuilder
-                .fromUri(gitterProperties.getEndpoint())
-                .pathSegment(gitterProperties.getVersion(),
-                        gitterProperties.getMessagesResource().toASCIIString());
     }
 }
