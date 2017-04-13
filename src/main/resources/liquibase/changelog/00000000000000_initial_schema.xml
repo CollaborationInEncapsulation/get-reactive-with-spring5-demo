@@ -28,10 +28,10 @@
             <column name="id" type="varchar(100)">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="TEXT" type="clob" encoding="utf-8">
+            <column name="text" type="clob">
                 <constraints nullable="false"/>
             </column>
-            <column name="HTML" type="clob" encoding="utf-8"/>
+            <column name="html" type="clob"/>
             <column name="sent" type="timestamp" defaultValueDate="${now}">
                 <constraints nullable="false"/>
             </column>

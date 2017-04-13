@@ -41,6 +41,7 @@ dependencies {
 
     compile('io.reactivex:rxnetty-http:0.5.2')
     compile('org.liquibase:liquibase-core')
+    compile('org.hibernate:hibernate-core:5.2.9.Final')
     runtime('com.h2database:h2')
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
     compileOnly('org.projectlombok:lombok')
