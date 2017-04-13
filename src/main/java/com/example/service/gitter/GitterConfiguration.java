@@ -10,7 +10,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.WebUtils;
 
 import java.util.List;
@@ -24,9 +23,7 @@ public class GitterConfiguration {
                                      RestTemplate restTemplate) {
         return (query) -> {
             ResponseEntity<List<MessageResponse>> response = restTemplate.exchange(
-                    UriComponentsBuilder.fromUri(gitterProperties.getEndpoint())
-                            .pathSegment(gitterProperties.getVersion(),
-                                    gitterProperties.getMessagesResource().toASCIIString())
+                   GitterUriBuilder.from(gitterProperties)
                             .queryParams(query)
                             .build()
                             .toUri(),
