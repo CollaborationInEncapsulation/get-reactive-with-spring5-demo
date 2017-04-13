@@ -7,7 +7,7 @@ import com.example.domain.Mention;
 import com.example.domain.Message;
 import com.example.domain.User;
 import com.example.service.impl.utils.MessageMapper;
-import com.example.utils.ChatResponseFactory;
+import com.example.harness.ChatResponseFactory;
 import org.junit.Assert;
 import org.junit.Test;
 

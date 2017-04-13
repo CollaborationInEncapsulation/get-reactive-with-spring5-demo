@@ -2,7 +2,7 @@ package com.example.controller;
 
 import com.example.service.ChatService;
 import com.example.service.gitter.dto.MessageResponse;
-import com.example.utils.ChatResponseFactory;
+import com.example.harness.ChatResponseFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;

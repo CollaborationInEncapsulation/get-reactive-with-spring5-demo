@@ -1,4 +1,4 @@
-package com.example.utils;
+package com.example.harness;
 
 
 import com.example.service.gitter.dto.*;

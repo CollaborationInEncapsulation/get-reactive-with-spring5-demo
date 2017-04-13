@@ -1,8 +1,8 @@
 package com.example.service.gitter;
 
 import com.example.service.gitter.dto.MessageResponse;
-import com.example.utils.Assertions;
-import com.example.utils.ChatResponseFactory;
+import com.example.harness.Assertions;
+import com.example.harness.ChatResponseFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
