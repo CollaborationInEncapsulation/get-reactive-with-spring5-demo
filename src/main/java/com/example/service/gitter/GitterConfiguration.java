@@ -33,8 +33,7 @@ public class GitterConfiguration {
                         r -> r.header("Authorization", "Bearer " + gitterProperties.getAuth().getToken()))
                 .map(hcr -> hcr.addHandler(new JsonObjectDecoder()))
                 .retry()
-                .flux()
-                .flatMap(hc -> hc.receive().asInputStream())
+                .flatMapMany(hc -> hc.receive().asInputStream())
                 .map(is -> {
                     try {
                         return mapper.readValue(is, MessageResponse.class);
