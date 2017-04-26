@@ -9,7 +9,8 @@
                 <span th:utext="${message.getHtml()}" th:remove="tag">title</span>
                 <br/>
                 <small class="text-muted"
-                       th:text="${message.getUsername() + ' | ' + message.getSent()}"></small>
+                       th:text="${message.getUsername()
+                        + ' | ' + #dates.format(message.getSent(), 'dd-MM-yyyy, HH:mm:ss')}"></small>
                 <hr/>
             </div>
         </div>
