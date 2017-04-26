@@ -29,10 +29,10 @@ public class GitterConfiguration {
                                             ObjectMapper mapper) {
         return (query) -> HttpClient.create()
                 .get(
-                        GitterUriBuilder.from(gitterProperties).queryParams(query).toUriString(),
+                        GitterUriBuilder.from(gitterProperties).queryParams(query).build().toUriString(),
                         r -> r.header("Authorization", "Bearer " + gitterProperties.getAuth().getToken()))
                 .map(hcr -> hcr.addHandler(new JsonObjectDecoder()))
-                .retry()
+                .retry(3)
                 .flatMapMany(hc -> hc.receive().asInputStream())
                 .map(is -> {
                     try {
