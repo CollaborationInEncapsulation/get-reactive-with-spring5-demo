@@ -71,21 +71,23 @@
     </div>
 </div>
 <script type="text/html" src="/static/message.html" id="message-template">
-    <div class="media-body">
-        <div class="media">
-            <a class="pull-left" href="#">
-                <img class="media-object img-circle" src="<%= userAvatarUrl %>"/>
-            </a>
-            <div class="media-body">
-                <%= html %>
-                <br/>
-                <small class="text-muted">
-                    <%= username %> | <%= sent %>
-                </small>
-                <hr/>
+    <li class="media">
+        <div class="media-body">
+            <div class="media">
+                <a class="pull-left" href="#">
+                    <img class="media-object img-circle" src="<%= userAvatarUrl %>"/>
+                </a>
+                <div class="media-body">
+                    <%= html %>
+                    <br/>
+                    <small class="text-muted">
+                        <%= username %> | <%= sent %>
+                    </small>
+                    <hr/>
+                </div>
             </div>
         </div>
-    </div>
+    </li>
 </script>
 <script type="text/html" src="/static/users-statistic.html" id="users-statistic-template">
     <div class="btn-group chat-toolbar users-statistic" role="group" aria-label="...">
