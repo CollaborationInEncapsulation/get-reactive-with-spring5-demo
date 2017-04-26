@@ -45,28 +45,28 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     @Override
     public Mono<T> findOne(ID id) {
         return applyCommonOperations(Mono.just(id),
-                flux -> flux.map(decoratedRepository::findOne).map(Optional::get).onErrorResumeWith(t -> Mono.empty()))
+                flux -> flux.map(decoratedRepository::findOne).map(Optional::get).onErrorResume(t -> Mono.empty()))
                 .single();
     }
 
     @Override
     public Mono<T> findOne(Mono<ID> id) {
         return applyCommonOperations(id,
-                flux -> flux.map(decoratedRepository::findOne).map(Optional::get).onErrorResumeWith(t -> Mono.empty()))
+                flux -> flux.map(decoratedRepository::findOne).map(Optional::get).onErrorResume(t -> Mono.empty()))
                 .single();
     }
 
     @Override
     public Mono<Boolean> exists(ID id) {
         return applyCommonOperations(Mono.just(id),
-                flux -> flux.map(decoratedRepository::exists).onErrorResumeWith(t -> Mono.just(false)))
+                flux -> flux.map(decoratedRepository::exists).onErrorResume(t -> Mono.just(false)))
                 .single();
     }
 
     @Override
     public Mono<Boolean> exists(Mono<ID> id) {
         return applyCommonOperations(id,
-                flux -> flux.map(decoratedRepository::exists).onErrorResumeWith(t -> Mono.just(false)))
+                flux -> flux.map(decoratedRepository::exists).onErrorResume(t -> Mono.just(false)))
                 .single();
     }
 

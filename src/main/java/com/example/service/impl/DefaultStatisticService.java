@@ -42,10 +42,8 @@ public class DefaultStatisticService implements StatisticService {
         Flux<UserVM> topMentionedUser = userRepository.findAllOrderedByMentionDesc(PageRequest.of(0, 1))
                 .map(UserMapper::toViewModelUnits);
 
-        return Flux.zip(
-                topActiveUser.single(EMPTY_USER).otherwiseIfEmpty(Mono.just(EMPTY_USER)),
-                topMentionedUser.single(EMPTY_USER).otherwiseIfEmpty(Mono.just(EMPTY_USER)),
-                UsersStatisticVM::new
-        ).single();
+        return Mono.fromDirect(
+                Flux.zip(topActiveUser.single(EMPTY_USER), topMentionedUser.single(EMPTY_USER), UsersStatisticVM::new)
+        );
     }
 }
