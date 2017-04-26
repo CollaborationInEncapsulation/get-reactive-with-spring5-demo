@@ -18,6 +18,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
+    <script src='https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js'></script>
     <style>
         .chats-row div {
             height: 50%;
@@ -69,21 +70,62 @@
         </div>
     </div>
 </div>
+<script type="text/html" src="/static/message.html" id="message-template">
+    <div class="media-body">
+        <div class="media">
+            <a class="pull-left" href="#">
+                <img class="media-object img-circle" src="<%= userAvatarUrl %>"/>
+            </a>
+            <div class="media-body">
+                <%= html %>
+                <br/>
+                <small class="text-muted">
+                    <%= username %> | <%= sent %>
+                </small>
+                <hr/>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" src="/static/users-statistic.html" id="users-statistic-template">
+    <div class="btn-group chat-toolbar users-statistic" role="group" aria-label="...">
+        <div class="btn btn-default ticket-option most-active">
+            <i class="glyphicon glyphicon-king"></i>
+            <span>
+            Most Active User :
+            <span><%= mostActive.name %></span>
+        </span>
+        </div>
+        <div class="btn btn-default ticket-option most-mentioned">
+            <i class="glyphicon glyphicon-sunglasses"></i>
+            <span>
+            Most Mentioned User :
+            <span><%= mostMentioned.name %></span>
+        </span>
+        </div>
+    </div>
+</script>
 <script th:inline="javascript">
+    var messageTemplate = _.template($('#message-template').html());
+    var statisticTemplate = _.template($('#users-statistic-template').html());
     var chatArea = $('.media-list');
     var scrollableArea = $('.current-chat-area');
     var statisticArea = $(".chat-toolbar-row>div");
+    var socketConnection = new WebSocket("ws://" + location.host + "/api/v1/ws");
 
-    var messagesSource = new EventSource("/messages");
-    var statisticSource = new EventSource("/statistic");
+    function isMessage(data) {
+        return !_.isUndefined(data.html);
+    }
 
-    messagesSource.addEventListener("message", function (event) {
-        chatArea.append(event.data);
-        scrollableArea.animate({scrollTop: chatArea.height()}, 500);
-    });
+    socketConnection.addEventListener("message", function (event) {
+        var parsedData = JSON.parse(event.data);
 
-    statisticSource.addEventListener("message", function (event) {
-        statisticArea.html(event.data);
+        if (isMessage(parsedData)) {
+            chatArea.append(messageTemplate(parsedData));
+            scrollableArea.animate({scrollTop: chatArea.height()}, 500);
+        } else {
+            statisticArea.html(statisticTemplate(parsedData));
+        }
     });
 </script>
 </body>
