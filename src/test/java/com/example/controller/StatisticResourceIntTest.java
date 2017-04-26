@@ -74,10 +74,8 @@ public class StatisticResourceIntTest {
                         .accept(MediaType.TEXT_EVENT_STREAM)
                         .exchange()
                         .expectStatus().isOk()
-                        .expectBody(UsersStatisticVM.class)
-                        .returnResult()
-                        .getResponseBody()
-                        .cast(UsersStatisticVM.class))
+                        .returnResult(UsersStatisticVM.class)
+                        .getResponseBody())
                 .expectSubscription()
                 .expectNextMatches(us ->
                         us.getMostActive().getId().equals("53307734c3599d1de448e192")

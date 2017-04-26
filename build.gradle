@@ -36,10 +36,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-thymeleaf') {
         exclude module: 'spring-boot-starter-tomcat'
     }
-    compile 'org.thymeleaf:thymeleaf-spring5:3.0.6-SNAPSHOT'
-    compile 'org.thymeleaf:thymeleaf:3.0.6-SNAPSHOT'
 
-    compile('io.reactivex:rxnetty-http:0.5.2')
+    compile('io.reactivex:rxnetty-http:0.5.+')
     compile('org.liquibase:liquibase-core')
     runtime('com.h2database:h2')
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
