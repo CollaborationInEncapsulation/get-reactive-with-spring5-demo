@@ -19,6 +19,7 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment-with-locales.min.js"></script>
     <style>
         .chats-row div {
             height: 50%;
@@ -70,7 +71,7 @@
         </div>
     </div>
 </div>
-<script type="text/html" src="/static/message.html" id="message-template">
+<script type="text/html" id="message-template">
     <li class="media">
         <div class="media-body">
             <div class="media">
@@ -81,7 +82,7 @@
                     <%= html %>
                     <br/>
                     <small class="text-muted">
-                        <%= username %> | <%= sent %>
+                        <%= username %> | <%= moment(sent).format("DD-MM-YYYY, HH:mm:ss") %>
                     </small>
                     <hr/>
                 </div>
@@ -89,7 +90,7 @@
         </div>
     </li>
 </script>
-<script type="text/html" src="/static/users-statistic.html" id="users-statistic-template">
+<script type="text/html" id="users-statistic-template">
     <div class="btn-group chat-toolbar users-statistic" role="group" aria-label="...">
         <div class="btn btn-default ticket-option most-active">
             <i class="glyphicon glyphicon-king"></i>
@@ -108,7 +109,7 @@
     </div>
 </script>
 <script th:inline="javascript">
-    var messageTemplate = _.template($('#message-template').html());
+    var messageTemplate = _.template($('#message-template').html(), { 'imports': { 'moment': moment }});
     var statisticTemplate = _.template($('#users-statistic-template').html());
     var chatArea = $('.media-list');
     var scrollableArea = $('.current-chat-area');
