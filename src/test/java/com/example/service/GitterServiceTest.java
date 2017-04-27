@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+import reactor.test.scheduler.VirtualTimeScheduler;
 
 import java.time.Duration;
 
@@ -25,7 +26,7 @@ public class GitterServiceTest {
 
         when(gitterClient.getMessages(any())).thenReturn(
                 Flux
-                        .interval(Duration.ofMillis(1))
+                        .interval(Duration.ofHours(1), VirtualTimeScheduler.getOrSet())
                         .map(String::valueOf)
                         .map(ChatResponseFactory::message)
         );
@@ -36,12 +37,13 @@ public class GitterServiceTest {
     @Test
     public void shouldReturnMessagesFromGitter() {
 
-        StepVerifier.create(gitterService.stream())
+        StepVerifier.withVirtualTime(() -> gitterService.stream())
                 .expectSubscription()
+                .thenAwait(Duration.ofHours(1))
                 .expectNextCount(1)
-                .thenAwait(Duration.ofMillis(1))
+                .thenAwait(Duration.ofHours(1))
                 .expectNextCount(1)
-                .thenAwait(Duration.ofMillis(1))
+                .thenAwait(Duration.ofHours(1))
                 .expectNextCount(1)
                 .thenCancel()
                 .verify();

@@ -51,15 +51,15 @@ public class StatisticServiceTest {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostMentioned());
                 })
-                .expectNoEvent(Duration.ofMillis(1))
-                .thenAwait(Duration.ofMillis(1))
+                .expectNoEvent(Duration.ofHours(1))
+                .thenAwait(Duration.ofHours(1))
                 .then(() -> processor.onNext(1))
                 .assertNext(us -> {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostMentioned());
                 })
-                .expectNoEvent(Duration.ofMillis(1))
-                .thenAwait(Duration.ofMillis(1))
+                .expectNoEvent(Duration.ofHours(1))
+                .thenAwait(Duration.ofHours(1))
                 .then(() -> processor.onNext(1))
                 .assertNext(us -> {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
