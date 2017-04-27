@@ -21,6 +21,6 @@ public class StatisticResource {
 
     @GetMapping(value = "/users", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<UsersStatisticVM> getUsersStatistic() {
-        return statisticService.usersStatisticStream().log();
+        return statisticService.usersStatisticStream();
     }
 }
