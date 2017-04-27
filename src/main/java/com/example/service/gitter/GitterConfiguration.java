@@ -32,7 +32,7 @@ public class GitterConfiguration {
                         GitterUriBuilder.from(gitterProperties).queryParams(query).build().toUriString(),
                         r -> r.header("Authorization", "Bearer " + gitterProperties.getAuth().getToken()))
                 .map(hcr -> hcr.addHandler(new JsonObjectDecoder()))
-                .retry(3)
+                .retry()
                 .flatMapMany(hc -> hc.receive().asInputStream())
                 .map(is -> {
                     try {

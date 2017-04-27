@@ -53,13 +53,11 @@ public class ChatControllerTest {
                         .exchange()
                         .expectStatus().isOk()
                         .expectHeader().valueMatches("Content-Type", MediaType.TEXT_HTML_VALUE + ";charset=UTF-8")
-                        .returnResult(MessageResponse.class)
+                        .returnResult(String.class)
                         .getResponseBody())
                 .expectSubscription()
                 .expectNextCount(1)
-                .thenAwait(Duration.ofMillis(1000))
-                .expectNextCount(10)
-                .thenCancel()
+                .expectComplete()
                 .verify();
 
     }
