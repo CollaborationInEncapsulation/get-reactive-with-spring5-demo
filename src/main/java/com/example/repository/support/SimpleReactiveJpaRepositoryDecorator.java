@@ -93,7 +93,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     public Flux<T> findAll() {
         return applyCommonOperations(Mono.<T>empty(),
                 flux -> flux
-                        .concatWith(Flux.defer(() -> Flux.fromIterable(decoratedRepository.findAll()))));
+                        .concatWith(Flux.fromIterable(decoratedRepository.findAll())));
     }
 
     @Override
@@ -101,8 +101,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
         Assert.notNull(ids, ITERABLE_MUST_NOT_BE_NULL);
 
         return applyCommonOperations(Mono.<T>empty(),
-                flux -> flux
-                        .concatWith((Flux.defer(() -> Flux.fromIterable(decoratedRepository.findAll(ids))))));
+                flux -> flux.concatWith(Flux.fromIterable(decoratedRepository.findAll(ids))));
     }
 
     @Override
@@ -116,7 +115,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     @Override
     public Mono<Long> count() {
         return applyCommonOperations(Mono.<Long>empty(),
-                flux -> flux.concatWith(Flux.defer(() -> Flux.just(decoratedRepository.count()))))
+                flux -> flux.concatWith(Flux.just(decoratedRepository.count())))
                 .single();
     }
 
@@ -125,7 +124,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
 
         return applyCommonOperations(Mono.empty(),
-                flux -> flux.concatWith(Flux.defer(() -> Mono.fromRunnable(() -> decoratedRepository.delete(id)))))
+                flux -> flux.concatWith(Mono.fromRunnable(() -> decoratedRepository.delete(id))))
                 .then();
     }
 
@@ -134,7 +133,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
         Assert.notNull(entity, ENTITY_MUST_NOT_BE_NULL);
 
         return applyCommonOperations(Mono.empty(),
-                flux -> flux.concatWith(Flux.defer(() -> Mono.fromRunnable(() -> decoratedRepository.delete(entity)))))
+                flux -> flux.concatWith(Mono.fromRunnable(() -> decoratedRepository.delete(entity))))
                 .then();
     }
 
@@ -143,8 +142,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
         Assert.notNull(entities, ITERABLE_MUST_NOT_BE_NULL);
 
         return applyCommonOperations(Mono.empty(),
-                flux -> flux.concatWith(Flux.defer(() -> Mono.fromRunnable(() -> decoratedRepository.delete(entities)
-                ))))
+                flux -> flux.concatWith(Mono.fromRunnable(() -> decoratedRepository.delete(entities))))
                 .then();
     }
 
@@ -160,7 +158,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     @Override
     public Mono<Void> deleteAll() {
         return applyCommonOperations(Mono.empty(),
-                flux -> flux.concatWith(Flux.defer(() -> Mono.fromRunnable(decoratedRepository::deleteAll))))
+                flux -> flux.concatWith(Mono.fromRunnable(decoratedRepository::deleteAll)))
                 .then();
     }
 
