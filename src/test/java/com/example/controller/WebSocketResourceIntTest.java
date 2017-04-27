@@ -1,39 +1,44 @@
 package com.example.controller;
 
-import com.example.controller.vm.MessageVM;
 import com.example.harness.ChatResponseFactory;
 import com.example.harness.GitterMockServerRule;
 import com.example.service.gitter.GitterProperties;
+import com.jayway.jsonpath.JsonPath;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.socket.WebSocketMessage;
+import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
+import org.springframework.web.reactive.socket.client.WebSocketClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.net.URI;
 import java.time.Duration;
+import java.util.ArrayList;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringRunner.class)
-@AutoConfigureWebTestClient
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
 @DirtiesContext
-public class MessageResourceIntTest {
-
-    @Autowired
-    private WebTestClient testClient;
+public class WebSocketResourceIntTest {
 
     @Autowired
     private GitterProperties properties;
+
+    @LocalServerPort
+    private int port = 0;
 
     @Rule
     public GitterMockServerRule gitterMockServerRule = new GitterMockServerRule(
@@ -44,21 +49,26 @@ public class MessageResourceIntTest {
                     .map(i -> Mono.just(ChatResponseFactory.message(i)))
     );
 
+    private WebSocketClient testClient;
+
+    @Before
+    public void setUp() {
+        testClient = new ReactorNettyWebSocketClient();
+    }
+
     @Test
     public void shouldReturnExpectedJson() throws Exception {
-
-        StepVerifier.create(
-                testClient
-                        .get()
-                        .uri("/api/v1/messages")
-                        .accept(MediaType.TEXT_EVENT_STREAM)
-                        .exchange()
-                        .expectStatus().isOk()
-                        .returnResult(MessageVM.class)
-                        .getResponseBody())
+        StepVerifier.<String>create(Flux.create(sink ->
+                sink.onCancel(testClient.execute(URI.create("ws://localhost:" + port + "/api/v1/ws"),
+                        s -> s.receive()
+                                .map(WebSocketMessage::getPayloadAsText)
+                                .doOnNext(sink::next)
+                                .doOnCancel(sink::complete)
+                                .doOnComplete(sink::complete)
+                                .then())
+                        .subscribe())))
                 .expectSubscription()
                 .expectNextCount(10)
-                .thenConsumeWhile(m -> Long.valueOf(m.getId()) > 30)
                 .thenCancel()
                 .verify();
     }
