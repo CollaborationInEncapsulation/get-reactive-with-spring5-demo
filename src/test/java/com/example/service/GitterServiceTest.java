@@ -37,15 +37,6 @@ public class GitterServiceTest {
     @Test
     public void shouldReturnMessagesFromGitter() {
 
-        StepVerifier.withVirtualTime(() -> gitterService.stream())
-                .expectSubscription()
-                .thenAwait(Duration.ofHours(1))
-                .expectNextCount(1)
-                .thenAwait(Duration.ofHours(1))
-                .expectNextCount(1)
-                .thenAwait(Duration.ofHours(1))
-                .expectNextCount(1)
-                .thenCancel()
-                .verify();
+       //TODO Write a StepVerifier test with VirtualTimeScheduler usage
     }
 }
