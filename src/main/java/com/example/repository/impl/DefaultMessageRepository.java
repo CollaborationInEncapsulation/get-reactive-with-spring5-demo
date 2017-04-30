@@ -6,8 +6,9 @@ import com.example.repository.support.SimpleReactiveJpaRepositoryDecorator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
+import static com.example.repository.support.JpaBoundsOperators.mono;
 
 @Service
 public class DefaultMessageRepository extends SimpleReactiveJpaRepositoryDecorator<Message, String>
@@ -23,8 +24,7 @@ public class DefaultMessageRepository extends SimpleReactiveJpaRepositoryDecorat
 
     @Override
     public Flux<Message> findAllEager() {
-        return applyCommonOperations(Flux.<Message>empty(),
-                flux -> Flux.just(jpaRepository.findAllEager())
-                        .flatMap(Flux::fromIterable));
+        return mono(Mono.empty(), mono -> Mono.just(jpaRepository.findAllEager()))
+                .flatMapIterable(v -> v);
     }
 }
