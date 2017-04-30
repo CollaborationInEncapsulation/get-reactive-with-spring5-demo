@@ -28,14 +28,8 @@ public final class JpaBoundsOperators {
      */
     public static <S, V> Mono<V> mono(Mono<S> input, Function<? super Mono<S>, ? extends Publisher<V>> transformer) {
 
-        MonoProcessor<V> monoProcessor = MonoProcessor.create();
-
-        input
-                .publishOn(Schedulers.elastic())
-                .transform(transformer)
-                .subscribe(monoProcessor);
-
-        return monoProcessor.subscribeOn(Schedulers.elastic());
+       //TODO: implement async bounds using Mono Processor
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -51,14 +45,7 @@ public final class JpaBoundsOperators {
     public static <S, V> Flux<V> flux(Flux<S> input,
                                       Function<? super Flux<List<S>>, ? extends Publisher<V>> transformer) {
 
-        TopicProcessor<V> emitterProcessor = TopicProcessor.create();
-
-        input
-                .buffer(Duration.ofMillis(100))
-                .publishOn(Schedulers.elastic())
-                .transform(transformer)
-                .subscribe(emitterProcessor);
-
-        return emitterProcessor;
+        //TODO: implement async bounds using Buffer Operator and Topic Processor
+        throw new UnsupportedOperationException();
     }
 }
