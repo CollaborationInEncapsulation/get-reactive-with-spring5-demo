@@ -14,7 +14,8 @@ import reactor.core.publisher.Signal;
 
 @Service
 public class DefaultStatisticService implements StatisticService {
-    public static final UserVM EMPTY_USER = new UserVM("", "");
+    private static final UserVM EMPTY_USER = new UserVM("", "");
+
     private final UserRepository userRepository;
     private final MessageBroker messageBroker;
 
