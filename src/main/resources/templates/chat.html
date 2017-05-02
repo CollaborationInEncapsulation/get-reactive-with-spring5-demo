@@ -19,6 +19,7 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous"></script>
     <script src='https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment-with-locales.min.js'></script>
     <style>
         .chats-row div {
             height: 50%;
@@ -89,7 +90,9 @@
                                         <span th:utext="${message.getHtml()}" th:remove="tag">title</span>
                                         <br/>
                                         <small class="text-muted"
-                                               th:text="${message.getUsername() + ' | ' + message.getSent()}"></small>
+                                               th:text="${message.getUsername()
+                                               + ' | '
+                                               + #dates.format(message.getSent(), 'dd-MM-yyyy, HH:mm:ss')}"></small>
                                         <hr/>
                                     </div>
                                 </div>
@@ -113,13 +116,13 @@
         + '' + '' + '<div class="media-body">'
         + '' + '' + '' + '<%= html %>'
         + '' + '' + '' + '<br/>'
-        + '' + '' + '' + '<small class="text-muted"><%= username  %> | <%= sent %></small>'
+        + '' + '' + '' + '<small class="text-muted"><%= username  %> | <%= moment(sent).format("DD-MM-YYYY, HH:mm:ss") %></small>'
         + '' + '' + '' + '<hr/>'
         + '' + '' + '</div>'
         + '' + '</div>'
         + '</div>' +
-        '</li>'
-    );
+        '</li>',
+    { 'imports': { 'moment': moment } });
     var cursor = /*[[${cursor}]]*/'';
     var mediaList = $('.media-list');
     var chatArea = $('.current-chat-area');
