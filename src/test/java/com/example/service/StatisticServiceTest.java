@@ -6,6 +6,7 @@ import com.example.repository.UserRepository;
 import com.example.service.impl.DefaultStatisticService;
 import com.example.service.impl.MessageBroker;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -26,7 +27,6 @@ import java.time.Duration;
 })
 public class StatisticServiceTest {
 
-    @Autowired
     private StatisticService statisticService;
 
     @Autowired
@@ -34,6 +34,11 @@ public class StatisticServiceTest {
 
     @MockBean
     private UserRepository userRepository;
+
+    @Before
+    public void setUp() {
+        statisticService = new DefaultStatisticService(userRepository, messageBroker);
+    }
 
     @Test
     public void shouldReturnStatistic() {
@@ -65,7 +70,8 @@ public class StatisticServiceTest {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostMentioned());
                 })
-                .then(() -> processor.onComplete())
-                .verifyComplete();
+                .then(processor::onComplete)
+                .expectComplete()
+                .verify();
     }
 }
