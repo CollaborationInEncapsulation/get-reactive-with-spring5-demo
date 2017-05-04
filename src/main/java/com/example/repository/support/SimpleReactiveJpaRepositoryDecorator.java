@@ -45,7 +45,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     public <S extends T> Flux<S> saveAll(Publisher<S> entityStream) {
         Assert.notNull(entityStream, PUBLISHER_MUST_NOT_BE_NULL);
 
-        return flux(Flux.from(entityStream), flux -> flux.map(decoratedRepository::saveAll).flatMap(Flux::fromIterable));
+        return flux(Flux.from(entityStream), flux -> flux.flatMapIterable(decoratedRepository::saveAll));
     }
 
     @Override
@@ -54,7 +54,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
 
         return mono(
                 Mono.just(id),
-                flux -> flux.map(decoratedRepository::findById).flatMap(o -> o.map(Mono::just).orElse(Mono.empty()))
+                mono -> mono.map(decoratedRepository::findById).flatMap(o -> o.map(Mono::just).orElse(Mono.empty()))
         );
     }
 
@@ -64,7 +64,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
 
         return mono(
                 id,
-                flux -> flux.map(decoratedRepository::findById).flatMap(o -> o.map(Mono::just).orElse(Mono.empty()))
+                mono -> mono.map(decoratedRepository::findById).flatMap(o -> o.map(Mono::just).orElse(Mono.empty()))
         );
     }
 
@@ -72,14 +72,14 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     public Mono<Boolean> existsById(ID id) {
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
 
-        return mono(Mono.just(id), flux -> flux.map(decoratedRepository::existsById));
+        return mono(Mono.just(id), mono -> mono.map(decoratedRepository::existsById));
     }
 
     @Override
     public Mono<Boolean> existsById(Mono<ID> id) {
         Assert.notNull(id, PUBLISHER_MUST_NOT_BE_NULL);
 
-        return mono(id, flux -> flux.map(decoratedRepository::existsById));
+        return mono(id, mono -> mono.map(decoratedRepository::existsById));
     }
 
     @Override
@@ -102,7 +102,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
 
         return flux(
                 Flux.from(idStream),
-                flux -> flux.flatMap(ids -> Flux.fromIterable(decoratedRepository.findAllById(ids)))
+                flux -> flux.flatMapIterable(decoratedRepository::findAllById)
         );
     }
 
@@ -131,7 +131,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     public Mono<Void> deleteAll(Iterable<? extends T> entities) {
         Assert.notNull(entities, ITERABLE_MUST_NOT_BE_NULL);
 
-        return mono(Mono.just(entities), flux -> flux.doOnNext(decoratedRepository::deleteAll))
+        return mono(Mono.just(entities), mono -> mono.doOnNext(decoratedRepository::deleteAll))
                 .then();
     }
 
