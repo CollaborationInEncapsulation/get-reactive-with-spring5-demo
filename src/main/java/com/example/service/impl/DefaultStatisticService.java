@@ -8,7 +8,6 @@ import com.example.service.impl.utils.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Signal;
@@ -25,13 +24,12 @@ public class DefaultStatisticService implements StatisticService {
     @Autowired
     public DefaultStatisticService(UserRepository userRepository, MessageBroker messageBroker) {
         this.userRepository = userRepository;
-        this.statisticPublisher = Flux.defer(() ->
-                messageBroker.channel("statisticChanged")
-                        .orElseThrow(() -> Exceptions.propagate(new UnavailableServiceException()))
-                        .filter(Signal::isOnNext)
-                        .map(Signal::get)
-                        .flatMap(s -> doGetUserStatistic()))
+        this.statisticPublisher = messageBroker
+                .channel("statisticChanged")
                 .retry(t -> t instanceof UnavailableServiceException)
+                .filter(Signal::isOnNext)
+                .map(Signal::get)
+                .flatMap(s -> doGetUserStatistic())
                 .mergeWith(Mono.defer(this::doGetUserStatistic))
                 .cache(1);
 

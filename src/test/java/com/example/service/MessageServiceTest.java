@@ -67,6 +67,6 @@ public class MessageServiceTest {
                 .expectComplete()
                 .verify();
 
-        messageBroker.channel("statisticChanged").ifPresent(Flux::blockFirst);
+        messageBroker.channel("statisticChanged").blockFirst();
     }
 }
