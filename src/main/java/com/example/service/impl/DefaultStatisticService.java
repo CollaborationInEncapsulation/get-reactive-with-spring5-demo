@@ -27,8 +27,7 @@ public class DefaultStatisticService implements StatisticService {
         this.statisticPublisher = messageBroker
                 .channel("statisticChanged")
                 .retry(t -> t instanceof UnavailableServiceException)
-                .filter(Signal::isOnNext)
-                .map(Signal::get)
+                .dematerialize()
                 .flatMap(s -> doGetUserStatistic())
                 .mergeWith(Mono.defer(this::doGetUserStatistic))
                 .cache(1);

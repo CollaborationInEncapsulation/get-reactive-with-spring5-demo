@@ -6,12 +6,10 @@ import com.example.repository.MessageRepository;
 import com.example.service.ChatService;
 import com.example.service.MessageService;
 import com.example.service.gitter.dto.MessageResponse;
+import com.example.service.impl.utils.MessageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-
-import static com.example.service.impl.utils.MessageMapper.toDomainUnits;
-import static com.example.service.impl.utils.MessageMapper.toViewModelUnits;
 
 @Service
 public class DefaultMessageService implements MessageService {
@@ -23,9 +21,7 @@ public class DefaultMessageService implements MessageService {
                                  MessageBroker messageBroker) {
         this.chatClient = chatClient;
 
-        Flux<Message> saved = messageRepository.save(toDomainUnits(chatClient.stream()))
-                .publish()
-                .autoConnect(0);
+        Flux<Message> saved = messageRepository.saveAll(chatClient.stream().transform(MessageMapper::toDomainUnits));
 
         messageBroker.createChannel("statisticChanged", saved.materialize());
     }
@@ -33,6 +29,6 @@ public class DefaultMessageService implements MessageService {
     @Override
     public Flux<MessageVM> latest() {
 
-        return toViewModelUnits(chatClient.stream());
+        return chatClient.stream().transform(MessageMapper::toViewModelUnits);
     }
 }
