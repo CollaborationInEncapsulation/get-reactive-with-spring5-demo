@@ -4,9 +4,9 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Signal;
 
+import javax.jnlp.UnavailableServiceException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Component
 public class MessageBroker {
@@ -20,7 +20,8 @@ public class MessageBroker {
         channels.put(name, source);
     }
 
-    public Optional<Flux<? extends Signal>> channel(String name) {
-        return Optional.ofNullable(channels.get(name));
+    @SuppressWarnings("unchecked")
+    public Flux<? extends Signal> channel(String name) {
+        return Flux.defer(() -> channels.getOrDefault(name, Flux.error(new UnavailableServiceException())));
     }
 }
