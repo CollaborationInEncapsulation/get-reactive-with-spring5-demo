@@ -59,18 +59,18 @@ public class StatisticServiceTest {
                 .expectNoEvent(Duration.ofHours(1))
                 .thenAwait(Duration.ofHours(1))
                 .then(() -> processor.onNext(1))
+                .then(() -> processor.onNext(1))
                 .assertNext(us -> {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostMentioned());
                 })
                 .expectNoEvent(Duration.ofHours(1))
                 .thenAwait(Duration.ofHours(1))
-                .then(() -> processor.onNext(1))
+                .then(processor::onComplete)
                 .assertNext(us -> {
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostActive());
                     Assert.assertEquals(new UserVM("1", "1"), us.getMostMentioned());
                 })
-                .then(processor::onComplete)
                 .expectComplete()
                 .verify();
     }
