@@ -10,9 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Signal;
-
-import javax.jnlp.UnavailableServiceException;
 
 @Service
 public class DefaultStatisticService implements StatisticService {
@@ -24,14 +21,9 @@ public class DefaultStatisticService implements StatisticService {
     @Autowired
     public DefaultStatisticService(UserRepository userRepository, MessageBroker messageBroker) {
         this.userRepository = userRepository;
-        this.statisticPublisher = messageBroker
-                .channel("statisticChanged")
-                .retry(t -> t instanceof UnavailableServiceException)
-                .dematerialize()
-                .flatMap(s -> doGetUserStatistic())
-                .mergeWith(Mono.defer(this::doGetUserStatistic))
-                .cache(1);
 
+        //TODO: provide interaction with statistic publisher channel, using dematerialization + retry + mergeWith + cache(1)
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -46,8 +38,9 @@ public class DefaultStatisticService implements StatisticService {
         Flux<UserVM> topMentionedUser = userRepository.findAllOrderedByMentionDesc(PageRequest.of(0, 1))
                 .map(UserMapper::toViewModelUnits);
 
-        return Mono.fromDirect(
-                Flux.zip(topActiveUser.single(EMPTY_USER), topMentionedUser.single(EMPTY_USER), UsersStatisticVM::new)
-        );
+        //TODO: provide zipping and of two publishers
+        //TODO: provide default fallback for top active user and for top mentioned user
+        //TODO: provide mono#fromDirect simplification since flux produce just 1 value
+        throw new UnsupportedOperationException();
     }
 }
