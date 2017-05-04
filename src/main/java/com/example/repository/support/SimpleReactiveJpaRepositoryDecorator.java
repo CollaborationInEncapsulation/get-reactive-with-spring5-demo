@@ -100,10 +100,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     public Flux<T> findAllById(Publisher<ID> idStream) {
         Assert.notNull(idStream, PUBLISHER_MUST_NOT_BE_NULL);
 
-        return flux(
-                Flux.from(idStream),
-                flux -> flux.flatMapIterable(decoratedRepository::findAllById)
-        );
+        return flux(Flux.from(idStream), flux -> flux.flatMapIterable(decoratedRepository::findAllById));
     }
 
     @Override
