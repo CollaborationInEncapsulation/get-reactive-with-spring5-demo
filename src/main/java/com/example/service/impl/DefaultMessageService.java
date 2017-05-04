@@ -23,7 +23,7 @@ public class DefaultMessageService implements MessageService {
                                  MessageBroker messageBroker) {
         this.chatClient = chatClient;
 
-        Flux<Message> saved = messageRepository.save(toDomainUnits(chatClient.stream()))
+        Flux<Message> saved = messageRepository.saveAll(toDomainUnits(chatClient.stream()))
                 .publish()
                 .autoConnect(0);
 
