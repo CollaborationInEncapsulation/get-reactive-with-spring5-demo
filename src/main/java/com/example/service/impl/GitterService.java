@@ -16,7 +16,9 @@ public class GitterService implements ChatService<MessageResponse> {
 
     @Autowired
     public GitterService(@Qualifier("ReactorGitterClient") GitterClient gitterClient) {
-        gitterMessageSource = ((Flux<MessageResponse>) gitterClient.getMessages(null)).publish().autoConnect(0);
+        //TODO: provide direct connection to gitter client with subsequent source publishing and auto-connection at once
+
+        throw new UnsupportedOperationException();
     }
 
     @Override
