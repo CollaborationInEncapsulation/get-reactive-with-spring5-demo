@@ -62,6 +62,7 @@ public class GitterMockServerRule implements MethodRule {
                         components.getPath(),
                         (r, response) -> response
                                 .sse()
+                                .options(NettyPipeline.SendOptions::flushOnEach)
                                 .sendObject(
                                         Flux.from(dataSource)
                                                 .flatMap(countableSource -> new Jackson2JsonEncoder()
@@ -72,8 +73,7 @@ public class GitterMockServerRule implements MethodRule {
                                                                 Collections.emptyMap()))
                                                 .map(DataBuffer::asByteBuffer)
                                                 .map(Unpooled::copiedBuffer)
-                                )
-                                .options(NettyPipeline.SendOptions::flushOnEach)))
+                                )))
                 .block();
     }
 }
