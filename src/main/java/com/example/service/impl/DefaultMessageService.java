@@ -1,12 +1,10 @@
 package com.example.service.impl;
 
 import com.example.controller.vm.MessageVM;
-import com.example.domain.Message;
 import com.example.repository.MessageRepository;
 import com.example.service.ChatService;
 import com.example.service.MessageService;
 import com.example.service.gitter.dto.MessageResponse;
-import com.example.service.impl.utils.MessageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -21,14 +19,13 @@ public class DefaultMessageService implements MessageService {
                                  MessageBroker messageBroker) {
         this.chatClient = chatClient;
 
-        Flux<Message> saved = messageRepository.saveAll(chatClient.stream().transform(MessageMapper::toDomainUnits));
-
-        messageBroker.createChannel("statisticChanged", saved.materialize());
+        //TODO: provide messages saving;
+        //TODO: provide channel with name "statisticChanged" and emmit materialized events when messages has been saved;
     }
 
     @Override
     public Flux<MessageVM> latest() {
-
-        return chatClient.stream().transform(MessageMapper::toViewModelUnits);
+        //TODO: provide message emmiting to downstream
+        throw new UnsupportedOperationException();
     }
 }
