@@ -16,7 +16,10 @@ public class GitterService implements ChatService<MessageResponse> {
 
     @Autowired
     public GitterService(@Qualifier("ReactorGitterClient") GitterClient gitterClient) {
-        gitterMessageSource = ((Flux<MessageResponse>) gitterClient.getMessages(null)).publish().autoConnect(0);
+        gitterMessageSource = Flux.from(gitterClient.getMessages(null))
+                .onBackpressureBuffer()
+                .publish()
+                .autoConnect(0);
     }
 
     @Override
