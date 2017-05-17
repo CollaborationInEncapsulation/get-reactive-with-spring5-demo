@@ -18,7 +18,7 @@ public class GitterService implements ChatService<MessageResponse> {
     public GitterService(@Qualifier("ReactorGitterClient") GitterClient gitterClient) {
         gitterMessageSource = Flux.from(gitterClient.getMessages(null))
                 .onBackpressureBuffer()
-                .publish()
+                .publish(1)
                 .autoConnect(0);
     }
 
