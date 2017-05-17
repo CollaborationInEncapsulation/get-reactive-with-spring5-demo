@@ -79,6 +79,7 @@
 
     messagesSource.addEventListener("message", function (event) {
         chatArea.append(event.data);
+        scrollableArea.stop();
         scrollableArea.animate({scrollTop: chatArea.height()}, 500);
     });
 
