@@ -125,6 +125,7 @@
 
         if (isMessage(parsedData)) {
             chatArea.append(messageTemplate(parsedData));
+            scrollableArea.stop();
             scrollableArea.animate({scrollTop: chatArea.height()}, 500);
         } else {
             statisticArea.html(statisticTemplate(parsedData));
