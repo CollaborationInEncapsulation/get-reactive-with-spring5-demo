@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Signal;
 
 import javax.jnlp.UnavailableServiceException;
 
@@ -47,7 +46,11 @@ public class DefaultStatisticService implements StatisticService {
                 .map(UserMapper::toViewModelUnits);
 
         return Mono.fromDirect(
-                Flux.zip(topActiveUser.single(EMPTY_USER), topMentionedUser.single(EMPTY_USER), UsersStatisticVM::new)
+                Flux.zip(
+                        topActiveUser.defaultIfEmpty(EMPTY_USER),
+                        topMentionedUser.defaultIfEmpty(EMPTY_USER),
+                        UsersStatisticVM::new
+                )
         );
     }
 }
