@@ -3,7 +3,6 @@ package com.example.controller;
 import com.example.harness.ChatResponseFactory;
 import com.example.harness.GitterMockServerRule;
 import com.example.service.gitter.GitterProperties;
-import com.example.service.gitter.dto.MessageResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +51,7 @@ public class ChatControllerTest {
                         .uri("/")
                         .exchange()
                         .expectStatus().isOk()
-                        .expectHeader().valueMatches("Content-Type", MediaType.TEXT_HTML_VALUE + ";charset=UTF-8")
+                        .expectHeader().valueMatches("Content-Type", MediaType.TEXT_HTML_VALUE + ".*")
                         .returnResult(String.class)
                         .getResponseBody())
                 .expectSubscription()
