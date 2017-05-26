@@ -1,9 +1,11 @@
 liquibase:
   change-log: classpath:liquibase/master.xml
-
 spring:
   datasource:
     url: jdbc:h2:file:./target/h2db/db/demodb;DB_CLOSE_DELAY=-1
+  thymeleaf:
+    reactive:
+      max-chunk-size: 8192
   h2:
     console:
       enabled: true
