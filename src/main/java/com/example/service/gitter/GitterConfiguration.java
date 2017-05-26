@@ -35,7 +35,6 @@ public class GitterConfiguration {
                 .uri(GitterUriBuilder.from(gitterProperties).queryParams(query).build().toUri())
                 .header("Authorization", "Bearer " + gitterProperties.getAuth().getToken())
                 .exchange()
-                .log()
                 .retryWhen(fe -> Flux.range(0, 10).delaySubscription(Duration.ofMillis(100)))
                 .checkpoint("received")
                 .flatMapMany(r -> r.bodyToFlux(MessageResponse.class));
