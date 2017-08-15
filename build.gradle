@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.2.RELEASE'
+        springBootVersion = '1.5.6.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -36,4 +36,8 @@ dependencies {
     testCompile('org.dbunit:dbunit:2.5.3')
     testCompile('org.mockito:mockito-core:2.7.+')
     testCompile('com.github.springtestdbunit:spring-test-dbunit:1.3.0')
+}
+
+bootRun {
+    systemProperties System.properties
 }
