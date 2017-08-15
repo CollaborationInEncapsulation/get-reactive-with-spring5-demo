@@ -18,7 +18,7 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     private static final String ID_MUST_NOT_BE_NULL = "The given id must not be null!";
     private static final String ITERABLE_MUST_NOT_BE_NULL = "The given Iterable of entities must not be null!";
     private static final String ENTITY_MUST_NOT_BE_NULL = "The entity must not be null!";
-    public static final String PUBLISHER_MUST_NOT_BE_NULL = "The given Publisher must not be null!";
+    private static final String PUBLISHER_MUST_NOT_BE_NULL = "The given Publisher must not be null!";
 
     private final JpaRepository<T, ID> decoratedRepository;
 
@@ -59,11 +59,11 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     }
 
     @Override
-    public Mono<T> findById(Mono<ID> id) {
+    public Mono<T> findById(Publisher<ID> id) {
         Assert.notNull(id, PUBLISHER_MUST_NOT_BE_NULL);
 
         return mono(
-                id,
+                Mono.from(id),
                 mono -> mono.map(decoratedRepository::findById).flatMap(o -> o.map(Mono::just).orElse(Mono.empty()))
         );
     }
@@ -76,10 +76,10 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
     }
 
     @Override
-    public Mono<Boolean> existsById(Mono<ID> id) {
+    public Mono<Boolean> existsById(Publisher<ID> id) {
         Assert.notNull(id, PUBLISHER_MUST_NOT_BE_NULL);
 
-        return mono(id, mono -> mono.map(decoratedRepository::existsById));
+        return mono(Mono.from(id), mono -> mono.map(decoratedRepository::existsById));
     }
 
     @Override
@@ -113,6 +113,14 @@ public class SimpleReactiveJpaRepositoryDecorator<T, ID extends Serializable> im
         Assert.notNull(id, ID_MUST_NOT_BE_NULL);
 
         return mono(Mono.just(id), mono -> mono.doOnNext(decoratedRepository::deleteById))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> deleteById(Publisher<ID> id) {
+        Assert.notNull(id, ID_MUST_NOT_BE_NULL);
+
+        return mono(Mono.from(id), mono -> mono.doOnNext(decoratedRepository::deleteById))
                 .then();
     }
 
