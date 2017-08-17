@@ -40,7 +40,7 @@ public class GitterClientTest {
 
     @Test
     public void shouldExpectRequestWithNoQueryAndResponseWithLatestMessages() throws JsonProcessingException {
-        server.expect(once(), requestTo(GitterUriBuilder.from(properties).build().toUriString()))
+        server.expect(once(), requestTo(GitterUriBuilder.from(properties.getApi()).build().toUriString()))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(objectMapper.writeValueAsBytes(ChatResponseFactory.messages(5)),
                         MediaType.APPLICATION_JSON));
@@ -55,7 +55,7 @@ public class GitterClientTest {
 
     @Test
     public void shouldExpectRequestWithAfterIdQueryAndResponseWithOneMessage() throws JsonProcessingException {
-        server.expect(once(), requestTo(startsWith(GitterUriBuilder.from(properties).build().toUriString())))
+        server.expect(once(), requestTo(startsWith(GitterUriBuilder.from(properties.getApi()).build().toUriString())))
                 .andExpect(method(HttpMethod.GET))
                 .andExpect(queryParam("afterId", "qwerty"))
                 .andRespond(withSuccess(objectMapper.writeValueAsBytes(ChatResponseFactory.messages(1)),

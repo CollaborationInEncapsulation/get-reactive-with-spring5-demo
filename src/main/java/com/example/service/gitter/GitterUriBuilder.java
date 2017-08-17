@@ -8,7 +8,7 @@ public final class GitterUriBuilder {
     private GitterUriBuilder() {
     }
 
-    public static UriComponentsBuilder from(GitterProperties gitterProperties) {
+    public static UriComponentsBuilder from(GitterProperties.GenericProperties gitterProperties) {
         return UriComponentsBuilder.fromUri(gitterProperties.getEndpoint())
                 .pathSegment(gitterProperties.getVersion(), gitterProperties.getMessagesResource().toASCIIString());
     }

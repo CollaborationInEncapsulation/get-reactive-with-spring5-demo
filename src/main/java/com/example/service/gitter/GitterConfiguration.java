@@ -23,13 +23,13 @@ public class GitterConfiguration {
                                      RestTemplate restTemplate) {
         return (query) -> {
             ResponseEntity<List<MessageResponse>> response = restTemplate.exchange(
-                   GitterUriBuilder.from(gitterProperties)
+                   GitterUriBuilder.from(gitterProperties.getApi())
                             .queryParams(query)
                             .build()
                             .toUri(),
                     HttpMethod.GET,
                     new HttpEntity<>(WebUtils.parseMatrixVariables(
-                            "Authorization=Bearer " + gitterProperties.getAuth().getToken()
+                            "Authorization=Bearer " + gitterProperties.getApi().getAuth().getToken()
                     )),
                     new ParameterizedTypeReference<List<MessageResponse>>() {
                     }
