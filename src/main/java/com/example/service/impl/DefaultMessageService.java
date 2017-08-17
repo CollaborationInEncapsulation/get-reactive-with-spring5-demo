@@ -7,6 +7,7 @@ import com.example.service.MessageService;
 import com.example.service.gitter.dto.MessageResponse;
 import com.example.service.impl.utils.MessageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -16,11 +17,14 @@ public class DefaultMessageService implements MessageService {
 
     @Autowired
     public DefaultMessageService(MessageRepository messageRepository,
-                                 ChatService<MessageResponse> chatClient) {
+                                 ChatService<MessageResponse> chatClient,
+                                 ApplicationContext context) {
         this.chatClient = chatClient;
 
         messageRepository
-                .saveAll(chatClient.stream().transform(MessageMapper::toDomainUnits));
+                .saveAll(chatClient.stream().transform(MessageMapper::toDomainUnits))
+                .map(MessageSavedEvent::new)
+                .subscribe(context::publishEvent);
     }
 
     @Override
