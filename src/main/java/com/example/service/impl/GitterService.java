@@ -6,28 +6,35 @@ import com.example.service.gitter.dto.MessageResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.Optional;
+import java.time.Duration;
 
 @Service
 public class GitterService implements ChatService<MessageResponse> {
 
-    private final GitterClient gitterClient;
+    private final Flux<MessageResponse> gitterMessageSource;
 
     @Autowired
     public GitterService(GitterClient gitterClient) {
-        this.gitterClient = gitterClient;
+        gitterMessageSource = Flux
+                .mergeSequential(
+                        gitterClient.getLatestMessages(),
+                        gitterClient.getMessagesStream(null)
+                )
+                .retryWhen(t ->
+                        Flux
+                                .range(0, Integer.MAX_VALUE)
+                                .publishOn(Schedulers.elastic())
+                                .delaySubscription(Duration.ofMillis(500)))
+                .replay(30)
+                .autoConnect(0);
     }
 
     @Override
     @SneakyThrows
-    public Iterable<MessageResponse> getMessagesAfter(String messageId) {
-        MultiValueMap<String, String> query = new LinkedMultiValueMap<>();
-
-        Optional.ofNullable(messageId).ifPresent(v -> query.add("afterId", v));
-
-        return gitterClient.getMessages(query);
+    public Flux<MessageResponse> stream() {
+        return gitterMessageSource;
     }
 }
