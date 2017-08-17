@@ -5,36 +5,32 @@ import com.example.repository.MessageRepository;
 import com.example.service.ChatService;
 import com.example.service.MessageService;
 import com.example.service.gitter.dto.MessageResponse;
+import com.example.service.impl.utils.MessageMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-import static com.example.service.impl.utils.MessageMapper.toDomainUnits;
-import static com.example.service.impl.utils.MessageMapper.toViewModelUnits;
+import reactor.core.publisher.Flux;
 
 @Service
 public class DefaultMessageService implements MessageService {
-    private final MessageRepository messageRepository;
     private final ChatService<MessageResponse> chatClient;
 
     @Autowired
-    public DefaultMessageService(MessageRepository messageRepository, ChatService<MessageResponse> chatClient) {
-        this.messageRepository = messageRepository;
+    public DefaultMessageService(MessageRepository messageRepository,
+                                 ChatService<MessageResponse> chatClient) {
         this.chatClient = chatClient;
+
+        chatClient
+                .stream()
+                .transform(MessageMapper::toDomainUnits)
+                .transform(messageRepository::saveAll)
+                .subscribe();
     }
 
     @Override
-    public List<MessageVM> cursor(String cursor) {
-        Iterable<MessageResponse> messages = chatClient.getMessagesAfter(cursor);
+    public Flux<MessageVM> latest() {
 
-        messageRepository.save(toDomainUnits(messages));
-
-        return toViewModelUnits(messages);
-    }
-
-    @Override
-    public List<MessageVM> latest() {
-        return cursor(null);
+        return chatClient
+                .stream()
+                .transform(MessageMapper::toViewModelUnits);
     }
 }
