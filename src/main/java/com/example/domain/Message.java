@@ -1,69 +1,40 @@
 package com.example.domain;
 
-import com.example.domain.utils.ToCommaSeparatedValuesConverter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import com.mongodb.annotations.Immutable;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedEntityGraph;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
 
-@Entity
-@Table(name = "message")
-@Data
+@Value
 @Builder
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
-@NamedEntityGraph(name = "load.eager.all", includeAllAttributes = true)
+@Document
+@Immutable
+@RequiredArgsConstructor(staticName = "of", onConstructor = @__(@PersistenceConstructor))
 public class Message implements Serializable {
     @Id
-    private String id;
-
-    @Lob
-    private String text;
-
-    @Lob
-    private String html;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date sent;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    private User user;
-
-    private Boolean unread;
-
-    private Long readBy;
-
-    @Lob
-    @Convert(converter = ToCommaSeparatedValuesConverter.class)
-    private String[] urls;
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "message_id", referencedColumnName = "id")
-    private Set<Mention> mentions;
-
-    @Embedded
-    @ElementCollection
-    @CollectionTable(name = "issue", joinColumns = @JoinColumn(name = "message_id"))
-    private Set<Issue> issues;
+    @NonNull
+    private final String id;
+    @NonNull
+    private final String text;
+    @NonNull
+    private final String html;
+    @NonNull
+    private final Date sent;
+    @NonNull
+    private final User user;
+    @NonNull
+    private final Boolean unread;
+    @NonNull
+    private final Long readBy;
+    @NonNull
+    private final String[] urls;
+    @NonNull
+    private final Set<Mention> mentions;
+    @NonNull
+    private final Set<Issue> issues;
 }
