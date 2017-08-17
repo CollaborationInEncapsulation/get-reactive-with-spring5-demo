@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.springframework.web.util.WebUtils;
 
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
