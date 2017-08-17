@@ -1,29 +1,26 @@
 package com.example.domain;
 
+import com.mongodb.annotations.Immutable;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.experimental.Accessors;
+import lombok.Value;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.PersistenceConstructor;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-@Data
-@Entity
-@Table(name = "user")
-@Accessors(chain = true)
-@NoArgsConstructor
-@AllArgsConstructor(staticName = "of")
+@Value
+@Document(collection = "users")
+@Immutable
+@AllArgsConstructor(staticName = "of", onConstructor = @__(@PersistenceConstructor))
 public class User implements Serializable {
+
     @Id
-    @NotNull
     @NonNull
-    private String id;
+    private final String id;
     @NonNull
-    @NotNull
-    private String name;
+    private final String name;
+    @NonNull
+    private final String displayName;
 }
