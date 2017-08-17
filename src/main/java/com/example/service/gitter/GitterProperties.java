@@ -9,12 +9,22 @@ public class GitterProperties {
 
     private GenericProperties api;
 
+    private GenericProperties stream;
+
     public GenericProperties getApi() {
         return api;
     }
 
     public void setApi(GenericProperties api) {
         this.api = api;
+    }
+
+    public GenericProperties getStream() {
+        return stream;
+    }
+
+    public void setStream(GenericProperties stream) {
+        this.stream = stream;
     }
 
     public static class GenericProperties {
