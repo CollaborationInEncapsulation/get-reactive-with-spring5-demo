@@ -13,7 +13,7 @@ public class UserMapperTest {
     public void shouldCorrectlyMapDomainModelToViewModel() {
         Assert.assertEquals(
                 new UserVM("0", "0"),
-                UserMapper.toViewModelUnits(User.of("0", "0"))
+                UserMapper.toViewModelUnits(User.of("0", "0", "0"))
         );
     }
 
