@@ -21,6 +21,7 @@ import java.util.Collections;
 @RunWith(SpringRunner.class)
 @Import(DefaultStatisticService.class)
 public class StatisticServiceTest {
+    private static final UserVM EMPTY_USER = new UserVM("", "");
 
     @Autowired
     private StatisticService statisticService;
@@ -37,8 +38,8 @@ public class StatisticServiceTest {
         UsersStatisticVM usersStatistic = statisticService.getUsersStatistic();
 
         Assert.assertNotNull(usersStatistic);
-        Assert.assertNull(usersStatistic.getMostActive());
-        Assert.assertNull(usersStatistic.getMostMentioned());
+        Assert.assertEquals(usersStatistic.getMostActive(), EMPTY_USER);
+        Assert.assertEquals(usersStatistic.getMostMentioned(), EMPTY_USER);
     }
 
     @Test

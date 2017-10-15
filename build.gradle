@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.5.6.RELEASE'
+        springBootVersion = '1.5.7.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -28,7 +28,8 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
     compile('org.liquibase:liquibase-core')
-    compile('org.hibernate:hibernate-core:5.2.9.Final')
+    compile('org.hibernate:hibernate-entitymanager:5.2.11.Final')
+    compile('org.hibernate:hibernate-core:5.2.11.Final')
     runtime('com.h2database:h2')
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
     compileOnly('org.projectlombok:lombok')
