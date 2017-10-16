@@ -1,0 +1,5 @@
+spring:
+  profiles:
+    active: live
+server:
+  port: 8083
