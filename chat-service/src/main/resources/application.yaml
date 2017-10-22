@@ -1,6 +1,11 @@
 spring:
   profiles:
     active: live
+  cloud:
+    stream:
+      default:
+        producer:
+          requiredGroups: messages
 
 gitter:
   api:

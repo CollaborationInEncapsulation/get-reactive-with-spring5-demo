@@ -1,5 +1,11 @@
 spring:
   profiles:
     active: live
+  cloud:
+    stream:
+      default:
+        group: statistic
+        producer:
+          requiredGroups: ui
 server:
   port: 8083
