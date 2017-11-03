@@ -7,3 +7,8 @@ gitter:
     messages-resource: rooms/${GITTER_ROOM}/chatMessages
     auth:
       token: ${GITTER_TOKEN}
+  stream:
+    endpoint: https://stream.gitter.im/
+    messages-resource: rooms/${GITTER_ROOM}/chatMessages
+    auth:
+      token: ${GITTER_TOKEN}
