@@ -2,11 +2,11 @@ package com.example.repository;
 
 import com.example.domain.User;
 
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 public interface UserRepository {
 
-    Optional<User> findMostActive();
+    Mono<User> findMostActive();
 
-    Optional<User> findMostPopular();
+    Mono<User> findMostPopular();
 }
