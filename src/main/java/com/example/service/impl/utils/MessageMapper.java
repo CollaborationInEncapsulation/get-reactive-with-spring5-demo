@@ -57,10 +57,14 @@ public final class MessageMapper {
                 .sent(message.getSent())
                 .readBy(message.getReadBy())
                 .unread(message.getUnRead())
-                .user(User.of(message.getFromUser().getId(), message.getFromUser().getUsername()))
+                .user(User.of(
+                        message.getFromUser().getId(),
+                        message.getFromUser().getUsername(),
+                        message.getFromUser().getDisplayName()
+                ))
                 .urls(message.getUrls().stream().map(Url::getUrl).toArray(String[]::new))
                 .mentions(message.getMentions().stream().filter(m -> m.getUserId() != null)
-                        .map(m -> Mention.of(Mention.Key.of(message.getId(), m.getUserId())))
+                        .map(m -> Mention.of(m.getUserId(), m.getScreenName()))
                         .collect(Collectors.toSet()))
                 .issues(message.getIssues().stream()
                         .map(i -> Issue.of(Long.valueOf(i.getNumber()))).collect(Collectors.toSet()))

@@ -1,11 +1,11 @@
 package com.example.service;
 
 
+import com.example.harness.Assertions;
+import com.example.harness.ChatResponseFactory;
 import com.example.service.gitter.GitterClient;
 import com.example.service.gitter.dto.MessageResponse;
 import com.example.service.impl.GitterService;
-import com.example.harness.Assertions;
-import com.example.harness.ChatResponseFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

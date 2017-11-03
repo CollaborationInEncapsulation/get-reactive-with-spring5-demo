@@ -6,8 +6,8 @@ import com.example.domain.Issue;
 import com.example.domain.Mention;
 import com.example.domain.Message;
 import com.example.domain.User;
-import com.example.service.impl.utils.MessageMapper;
 import com.example.harness.ChatResponseFactory;
+import com.example.service.impl.utils.MessageMapper;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -48,8 +48,8 @@ public class MessageMapperTest {
         Assert.assertEquals(
                 singletonList(Message.of("0", "0", "0",
                         Date.from(Instant.ofEpochSecond(1395748292L)),
-                        User.of("0", "0"), true, 0L, new String[]{"0", "0", "0"},
-                        Collections.singleton(Mention.of(Mention.Key.of("0", "0"))),
+                        User.of("0", "0", "0"), true, 0L, new String[]{"0", "0", "0"},
+                        Collections.singleton(Mention.of("0", "0")),
                         Collections.singleton(Issue.of(0L)))),
                 MessageMapper.toDomainUnits(ChatResponseFactory.messages(1))
         );

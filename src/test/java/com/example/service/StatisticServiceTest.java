@@ -12,11 +12,9 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Collections;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @Import(DefaultStatisticService.class)
@@ -31,10 +29,10 @@ public class StatisticServiceTest {
 
     @Test
     public void shouldReturnEmptyStatisticOnEmptyDataBase() {
-        Mockito.when(userRepository.findAllOrderedByActivityDesc(Mockito.any()))
-                .then(a -> new PageImpl<User>(Collections.emptyList(), (Pageable) a.getArguments()[0], 0));
-        Mockito.when(userRepository.findAllOrderedByMentionDesc(Mockito.any()))
-                .then(a -> new PageImpl<User>(Collections.emptyList(), (Pageable) a.getArguments()[0], 0));
+        Mockito.when(userRepository.findMostActive())
+                .then(a -> Optional.empty());
+        Mockito.when(userRepository.findMostPopular())
+                .then(a -> Optional.empty());
         UsersStatisticVM usersStatistic = statisticService.getUsersStatistic();
 
         Assert.assertNotNull(usersStatistic);
@@ -44,12 +42,10 @@ public class StatisticServiceTest {
 
     @Test
     public void shouldReturnStatistic() {
-        Mockito.when(userRepository.findAllOrderedByActivityDesc(Mockito.any()))
-                .then(a -> new PageImpl<>(Collections.singletonList(User.of("1", "1")),
-                        (Pageable) a.getArguments()[0], 1));
-        Mockito.when(userRepository.findAllOrderedByMentionDesc(Mockito.any()))
-                .then(a -> new PageImpl<>(Collections.singletonList(User.of("1", "1")),
-                        (Pageable) a.getArguments()[0], 1));
+        Mockito.when(userRepository.findMostActive())
+                .then(a -> Optional.of(User.of("1", "1", "1")));
+        Mockito.when(userRepository.findMostPopular())
+                .then(a -> Optional.of(User.of("1", "1", "1")));
         UsersStatisticVM usersStatistic = statisticService.getUsersStatistic();
 
         Assert.assertNotNull(usersStatistic);
