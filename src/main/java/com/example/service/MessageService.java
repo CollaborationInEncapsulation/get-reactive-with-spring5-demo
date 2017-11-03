@@ -3,10 +3,9 @@ package com.example.service;
 
 import com.example.controller.vm.MessageVM;
 
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 public interface MessageService {
-    List<MessageVM> cursor(String cursor);
 
-    List<MessageVM> latest();
+    Flux<MessageVM> latest();
 }
