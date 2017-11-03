@@ -10,21 +10,24 @@ import com.example.harness.ChatResponseFactory;
 import com.example.service.impl.utils.MessageMapper;
 import org.junit.Assert;
 import org.junit.Test;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 
-import static java.util.Collections.singletonList;
-
 public class MessageMapperTest {
 
     @Test
     public void shouldCorrectlyMapChatModelToViewModel() {
-        Assert.assertEquals(
-                singletonList(new MessageVM("0", "0", "0", "0", "0", Date.from(Instant.ofEpochSecond(1395748292L)))),
-                MessageMapper.toViewModelUnits(ChatResponseFactory.messages(1))
-        );
+        StepVerifier.create(MessageMapper.toViewModelUnits(Flux.fromIterable(ChatResponseFactory.messages(1))))
+                .expectSubscription()
+                .assertNext((m) -> Assert.assertEquals(
+                        new MessageVM("0", "0", "0", "0", "0", Date.from(Instant.ofEpochSecond(1395748292L))),
+                        m))
+                .expectComplete()
+                .verify();
     }
 
     @Test
@@ -36,23 +39,18 @@ public class MessageMapperTest {
     }
 
     @Test
-    public void shouldReturnCollectionWithNullsViewModelOnCollectionWithNullableChatModels() {
-        Assert.assertEquals(
-                singletonList(null),
-                MessageMapper.toViewModelUnits(singletonList(null))
-        );
-    }
-
-    @Test
     public void shouldCorrectlyMapChatModelToDomainModel() {
-        Assert.assertEquals(
-                singletonList(Message.of("0", "0", "0",
-                        Date.from(Instant.ofEpochSecond(1395748292L)),
-                        User.of("0", "0", "0"), true, 0L, new String[]{"0", "0", "0"},
-                        Collections.singleton(Mention.of("0", "0")),
-                        Collections.singleton(Issue.of(0L)))),
-                MessageMapper.toDomainUnits(ChatResponseFactory.messages(1))
-        );
+        StepVerifier.create(MessageMapper.toDomainUnits(Flux.fromIterable(ChatResponseFactory.messages(1))))
+                .expectSubscription()
+                .assertNext((m) -> Assert.assertEquals(
+                        Message.of("0", "0", "0",
+                                Date.from(Instant.ofEpochSecond(1395748292L)),
+                                User.of("0", "0", "0"), true, 0L, new String[]{"0", "0", "0"},
+                                Collections.singleton(Mention.of("0", "0")),
+                                Collections.singleton(Issue.of(0L))),
+                        m))
+                .expectComplete()
+                .verify();
     }
 
     @Test
@@ -60,14 +58,6 @@ public class MessageMapperTest {
         Assert.assertEquals(
                 null,
                 MessageMapper.toDomainUnits(null)
-        );
-    }
-
-    @Test
-    public void shouldReturnCollectionWithNullsDomainModelOnCollectionWithNullableChatModels() {
-        Assert.assertEquals(
-                singletonList(null),
-                MessageMapper.toDomainUnits(singletonList(null))
         );
     }
 }

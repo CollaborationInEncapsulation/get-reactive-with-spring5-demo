@@ -13,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.util.*;
+import java.util.Optional;
 
 @RunWith(SpringRunner.class)
 @Import(DefaultUserRepository.class)
@@ -39,22 +41,22 @@ public class UserRepositoryTest {
     @Test
     public void shouldFindExpectedMostActiveUser() {
         ChatResponseFactory.insertMessages(messageRepository);
-        Optional<User> mostActiveUsers = userRepository.findMostActive();
+        Mono<User> mostActiveUsers = userRepository.findMostActive();
 
-        Assert.assertEquals(
-                User.of("53307831c3599d1de448e19a", "macpi", "macpi"),
-                mostActiveUsers.orElse(null)
-        );
+        StepVerifier.create(mostActiveUsers)
+                .expectSubscription()
+                .expectNext(User.of("53307831c3599d1de448e19a", "macpi", "macpi"))
+                .expectComplete();
     }
 
     @Test
     public void shouldFindExpectedMostPopularUser() {
         ChatResponseFactory.insertMessages(messageRepository);
-        Optional<User> mostActiveUsers = userRepository.findMostPopular();
+        Mono<User> mostActiveUsers = userRepository.findMostPopular();
 
-        Assert.assertEquals(
-                User.of("53316dc47bfc1a000000000f", "oledok", "oledok"),
-                mostActiveUsers.orElse(null)
-        );
+        StepVerifier.create(mostActiveUsers)
+                .expectSubscription()
+                .expectNext(User.of("53316dc47bfc1a000000000f", "oledok", "oledok"))
+                .expectComplete();
     }
 }
