@@ -13,32 +13,43 @@ buildscript {
     }
 }
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
+allprojects {
 
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-repositories {
-    maven { url "https://repo.spring.io/milestone" }
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/release" }
-    mavenCentral()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-    jcenter()
-}
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = 1.8
 
-dependencies {
-    compile('org.springframework.boot:spring-boot-starter-actuator')
-    compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
-    compile('org.springframework.boot:spring-boot-starter-webflux')
-    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-    compileOnly('org.springframework.boot:spring-boot-configuration-processor')
-    compileOnly('org.projectlombok:lombok')
-    testCompile('de.flapdoodle.embed:de.flapdoodle.embed.mongo')
-    testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('io.projectreactor:reactor-test')
-    testCompile('org.mockito:mockito-core:2.8.+')
+    dependencyManagement {
+        imports {
+            mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Finchley.BUILD-SNAPSHOT'
+        }
+    }
+
+    repositories {
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/release" }
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+        jcenter()
+    }
+
+    configurations.all {
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    }
+
+    dependencies {
+        compile('org.springframework.boot:spring-boot-starter-reactor-netty')
+        compile('org.springframework.cloud:spring-cloud-stream-reactive')
+        compile('org.springframework.cloud:spring-cloud-stream-binder-rabbit')
+        compileOnly('org.springframework.boot:spring-boot-configuration-processor')
+        compileOnly('org.projectlombok:lombok')
+        testCompile('org.springframework.boot:spring-boot-starter-test')
+        testCompile('io.projectreactor:reactor-test')
+        testCompile('org.mockito:mockito-core:2.8.+')
+    }
 }

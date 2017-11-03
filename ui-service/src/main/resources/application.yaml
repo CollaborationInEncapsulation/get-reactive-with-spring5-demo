@@ -1,0 +1,7 @@
+spring:
+  profiles:
+    active: live
+  cloud:
+    stream:
+      default:
+        group: statistic
