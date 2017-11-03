@@ -1,7 +1,0 @@
-gitter:
-  api:
-    endpoint: https://api.gitter.im/
-    messages-resource: rooms/591ca8acd73408ce4f6049c1/chatMessages
-  stream:
-    endpoint: https://stream.gitter.im/
-    messages-resource: rooms/591ca8acd73408ce4f6049c1/chatMessages

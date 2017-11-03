@@ -1,0 +1,23 @@
+spring:
+  profiles:
+    active: live
+  cloud:
+    stream:
+      default:
+        producer:
+          requiredGroups: messages
+
+gitter:
+  api:
+    endpoint: https://api.gitter.im/
+    messages-resource: rooms/${GITTER_ROOM}/chatMessages
+    auth:
+      token: ${GITTER_TOKEN}
+  stream:
+    endpoint: https://stream.gitter.im/
+    messages-resource: rooms/${GITTER_ROOM}/chatMessages
+    auth:
+      token: ${GITTER_TOKEN}
+
+server:
+  port: 8081
