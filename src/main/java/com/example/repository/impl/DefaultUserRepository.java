@@ -5,52 +5,52 @@ import com.example.domain.User;
 import com.example.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 @Service
 class DefaultUserRepository implements UserRepository {
 
-    private final MongoOperations mongoOperations;
+    private final ReactiveMongoOperations mongoOperations;
 
     @Autowired
-    DefaultUserRepository(MongoOperations mongoOperations) {
+    DefaultUserRepository(ReactiveMongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
 
     @Override
-    public Optional<User> findMostActive() {
-        return Optional.ofNullable(mongoOperations
-                .aggregate(Aggregation.newAggregation(
+    public Mono<User> findMostActive() {
+        return Mono.fromDirect(
+                mongoOperations.aggregate(Aggregation.newAggregation(
                         Aggregation.group("user.id")
                                 .addToSet("user.name").as("name")
                                 .addToSet("user.displayName").as("displayName")
                                 .count().as("popularity"),
-                        Aggregation.sort(new Sort(new Sort.Order(Sort.Direction.DESC, "popularity"))),
+                        Aggregation.sort(Sort.by(Sort.Order.desc("popularity"))),
                         Aggregation.limit(1),
                         Aggregation.unwind("name"),
                         Aggregation.unwind("displayName")
                 ), Message.class, User.class)
-                .getUniqueMappedResult());
+        );
     }
 
     @Override
-    public Optional<User> findMostPopular() {
-        return Optional.ofNullable(mongoOperations
-                .aggregate(Aggregation.newAggregation(
+    public Mono<User> findMostPopular() {
+        return Mono.fromDirect(
+                mongoOperations.aggregate(Aggregation.newAggregation(
                         Aggregation.unwind("mentions"),
                         Aggregation.group("mentions.userId")
                                 .addToSet("mentions.screenName").as("name")
                                 .addToSet("mentions.screenName").as("displayName")
                                 .count().as("popularity"),
-                        Aggregation.sort(new Sort(new Sort.Order(Sort.Direction.DESC, "popularity"))),
+                        Aggregation.sort(Sort.by(Sort.Order.desc("popularity"))),
                         Aggregation.limit(1),
                         Aggregation.unwind("name"),
                         Aggregation.unwind("displayName")
                 ), Message.class, User.class)
-                .getUniqueMappedResult());
+        );
     }
 }
