@@ -1,0 +1,23 @@
+spring:
+  profiles:
+    active: live
+  cloud:
+    stream:
+      default:
+        group: statistic
+        producer:
+          requiredGroups: ui
+      instance-count: 2
+
+---
+spring:
+  profiles: live
+  cloud:
+    stream:
+      instance-index: 0
+---
+spring:
+  profiles: replica
+  cloud:
+    stream:
+      instance-index: 1
